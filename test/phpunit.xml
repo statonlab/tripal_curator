@@ -1,0 +1,7 @@
+<phpunit>
+    <testsuites>
+        <testsuite name="default">
+            <file>tripal_property_curations.test</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
