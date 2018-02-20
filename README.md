@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/statonlab/tripal_property_curations.svg?branch=master)](https://travis-ci.org/statonlab/tripal_property_curations)
 
 # Overview
 

@@ -27,4 +27,9 @@ final class tripal_property_curations_test extends TestCase
 
   }
 
+  public function test_property_tables_returned(){
+    $tables = tripal_property_curations_get_property_tables();
+    $this->assertNotEmpty($tables);
+  }
+
 }
