@@ -7,6 +7,8 @@
 It is under development and not suitable for use yet.
 
 
+![the curator](/docs/tripal_curator.png)
+
 ### Intended Features
 
 * Easily change properties from "Bad" ontologies to good ones 
