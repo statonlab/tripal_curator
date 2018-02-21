@@ -32,4 +32,15 @@ final class tripal_curator_test extends TestCase
     $this->assertNotEmpty($tables);
   }
 
+  public function test_tripal_curator_fetch_props_for_prop_table(){
+    $table = "biomaterialprop";
+
+    $props = tripal_curator_fetch_props_for_prop_table($table);
+    $this->assertNotEmpty($props);
+    $table = "assay";
+    $props = tripal_curator_fetch_props_for_prop_table($table);
+    $this->assertNull($props);
+
+  }
+
 }
