@@ -1,7 +1,10 @@
 <phpunit>
     <testsuites>
         <testsuite name="default">
-            <file>tripal_property_curations.test</file>
+            <file>tripal_curator.test</file>
         </testsuite>
     </testsuites>
+    <php>
+        <ini name="DRUPAL_ROOT" value="/var/www/html"/>
+    </php>
 </phpunit>

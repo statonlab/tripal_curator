@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/statonlab/tripal_property_curations.svg?branch=master)](https://travis-ci.org/statonlab/tripal_property_curations)
+[![Build Status](https://travis-ci.org/statonlab/tripal_curator.svg?branch=master)](https://travis-ci.org/statonlab/tripal_curator)
 
 # Overview
 
@@ -19,4 +19,4 @@ It is under development and not suitable for use yet.
 
 ### Development
 
-For now we manually define the Drupal root in the individual test.  Make sure that your root in `test/tripal_property_curations.test` is set to the local path for development and the docker path for passing Travis.
+For now we manually define the Drupal root in the individual test.  Make sure that your root in `test/tripal_curator.test` is set to the local path for development and the docker path for passing Travis.

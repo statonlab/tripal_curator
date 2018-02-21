@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/tripal_property_curations.api.inc';
+require_once '../includes/tripal_curator.api.inc';
 use PHPUnit\Framework\TestCase;
 use PHPUnit\DbUnit\TestCaseTrait;
 //Change this path for the docker!
@@ -18,7 +18,7 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
 chdir($start);
 
-final class tripal_property_curations_test extends TestCase
+final class tripal_curator_test extends TestCase
 {
   public function testTrueIsTrue()
   {
@@ -28,7 +28,7 @@ final class tripal_property_curations_test extends TestCase
   }
 
   public function test_property_tables_returned(){
-    $tables = tripal_property_curations_get_property_tables();
+    $tables = tripal_curator_get_property_tables();
     $this->assertNotEmpty($tables);
   }
 

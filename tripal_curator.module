@@ -1,22 +1,22 @@
 <?php
 
-include_once ('includes/tripal_property_curations.api.inc');
+include_once ('includes/tripal_curator.api.inc');
 
 /**
  * implement hook menu
  */
 
 function tripal_alchemist_menu() {
-  $admin_url_base = 'admin/tripal/extension/tripal_property_curations';
+  $admin_url_base = 'admin/tripal/extension/tripal_curator';
 
   $items[$admin_url_base] = [
     'title' => 'Tripal Property Curations',
     'description' => t('Tripal Property Curations'),
     'access arguments' => [' tripal property curations'],
     'page callback' => 'drupal_get_form',
-    'page arguments' => ['tripal_property_curations_form'],
-    'file' => 'includes/tripal_property_curations.form.inc',
-    'file_path' => drupal_get_path('module', 'tripal_property_curations'),
+    'page arguments' => ['tripal_curator_form'],
+    'file' => 'includes/tripal_curator.form.inc',
+    'file_path' => drupal_get_path('module', 'tripal_curator'),
   ];
 
   return $items;

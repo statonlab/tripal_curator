@@ -8,7 +8,7 @@
  * @return mixed
  */
 
-function tripal_property_curations_form($form, &$form_state) {
+function tripal_curator_form($form, &$form_state) {
 
   $markup = "<h3>Tripal Chado Property Curations</h3>
     <p>Welcome to the Tripal Property Curator!</p><p>

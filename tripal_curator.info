@@ -2,8 +2,8 @@ name = Tripal Property Curations
 description = This module provides an interface for curating the properties and property values of Chado records.
 core = 7.x
 package = Tripal Extensions
-files[] = tripal_property_curations.module
-configuration = admin/tripal/extension/tripal_property_curations
+files[] = tripal_curator.module
+configuration = admin/tripal/extension/tripal_curator
 version=7.x-3.0
 dependencies[] = tripal
 
