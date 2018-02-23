@@ -2,6 +2,8 @@
 
 use PHPUnit\Framework\TestCase;
 
+use \tripal_curator\Chado_property;
+
 //some reading for organizing and annotating tests
 //https://stackoverflow.com/questions/8313283/phpunit-best-practices-to-organize-tests
 //https://jtreminio.com/2013/03/unit-testing-tutorial-introduction-to-phpunit/
@@ -13,6 +15,13 @@ final class Chado_property_test extends TestCase {
     $foo = true;
     $this->assertTrue($foo);
 
+  }
+
+  public function test_initialize_property() {
+
+    $property  = new Chado_property(1);
+
+    $this->assertInstanceOf(Chado_property::class, $property);
   }
 
 

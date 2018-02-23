@@ -5,7 +5,7 @@ namespace tripal_curator;
 
 class Chado_property {
 
-  public static $cvterm;
+  private static $cvterm_id;
 
   public static $prop_table;
 
@@ -14,11 +14,10 @@ class Chado_property {
   public static $cvalue;
 
 
-  private static $property_record_id;
 
-  public function __construct($property_record_id) {
+  public function __construct($cvterm_id) {
 
-    $this->property_record_id = $property_record_id;
+    $this->cvterm_id = $cvterm_id;
 
   }
 
