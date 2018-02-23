@@ -1,20 +1,6 @@
 <?php
 
-//require_once '../includes/tripal_curator.api.inc';
 use PHPUnit\Framework\TestCase;
-use PHPUnit\DbUnit\TestCaseTrait;
-
-$start = getcwd();
-
-chdir(DRUPAL_ROOT);
-
-require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
-$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-
-drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-
-chdir($start);
-
 
 //some reading for organizing and annotating tests
 //https://stackoverflow.com/questions/8313283/phpunit-best-practices-to-organize-tests
@@ -29,7 +15,8 @@ final class tripal_curator_test extends TestCase
 
   }
 
-  public function test_property_tables_returned(){
+
+  public function test_property_tables_returns_prop_tables_only(){
     $tables = tripal_curator_get_property_tables();
     $this->assertNotEmpty($tables);
 
@@ -37,7 +24,9 @@ final class tripal_curator_test extends TestCase
     $this->assertNotContains('featureprop_pub', $tables);
 
   }
-  public function test_stringreplace(){
+
+
+  public function test_stringreplace_finds_basetable_from_proptable(){
     $string="biomaterialprop";
     $expected = "biomaterial";
     $new_string = tripal_curator_str_lreplace("prop", "", $string);
@@ -46,7 +35,9 @@ final class tripal_curator_test extends TestCase
 
   }
 
-  public function test_tripal_curator_fetch_props_for_prop_table(){
+
+
+  public function test_fetch_props_for_prop_table_finds_properties_if_prop_table(){
     $table = "cvtermprop";
     $props = tripal_curator_fetch_props_for_prop_table($table);
     $this->assertNotEmpty($props);
@@ -56,7 +47,7 @@ final class tripal_curator_test extends TestCase
   }
 
 
-  public function test_property_count_list(){
+  public function test_property_count_list_returns_cvs(){
 
     $list = tripal_curator_get_cv_usage();
 
