@@ -5,6 +5,10 @@ services:
 
 sudo: required
 
+env:
+  - DRUPAL_ROOT=/var/www/html
+
+
 before_script:
   - docker pull bcondon/docker_tripal3
 
@@ -13,4 +17,4 @@ script:
   - docker exec -it tripal bash -c 'cd /var/www/html/sites/all/modules/tripal_extensions && git clone https://github.com/statonlab/tripal_curator.git'
   - sleep 30 #We pause here so drush won't fail
   - docker exec -it tripal drush pm-enable -y tripal_curator
-  - docker exec -it tripal bash -c 'cd /var/www/html/sites/all/modules/tripal_extensions/tripal_curator/ &&composer install && cd test && ../vendor/bin/phpunit'
+  - docker exec -it tripal bash -c 'cd /var/www/html/sites/all/modules/tripal_extensions/tripal_curator/ &&composer install && DRUPAL_ROOT="/var/www/html" ./vendor/bin/phpunit'
