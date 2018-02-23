@@ -14,8 +14,11 @@ It is under development and not suitable for use yet.
 * Easily change properties from "Bad" ontologies to good ones 
   - local CVs (tripal_analysis_expression) to Plant Trait Ontology
   
-* Easily annotate properties with cvalue_id's (IE, use CVterms to annotate properties where previously they had free text property values)
+* Easily annotate properties with `cvalue_id`'s (IE, use CVterms to annotate properties where previously they had free text property values)
 
+* Split property cvalues into multiple terms for "compound properties"
+
+* Autosuggest matching property terms
 
 # Contributing
 
