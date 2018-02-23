@@ -6,18 +6,30 @@ include_once ('includes/tripal_curator.api.inc');
  * implement hook menu
  */
 
-function tripal_alchemist_menu() {
+function tripal_curator_menu() {
   $admin_url_base = 'admin/tripal/extension/tripal_curator';
 
   $items[$admin_url_base] = [
-    'title' => 'Tripal Property Curations',
-    'description' => t('Tripal Property Curations'),
-    'access arguments' => [' tripal property curations'],
+    'title' => 'Tripal Curator',
+    'description' => t('Tripal Curator'),
+    'access arguments' => [' Tripal Curator'],
     'page callback' => 'drupal_get_form',
     'page arguments' => ['tripal_curator_form'],
     'file' => 'includes/tripal_curator.form.inc',
     'file_path' => drupal_get_path('module', 'tripal_curator'),
   ];
+
+
+  $items[$admin_url_base . "/CV_usage"] = [
+    'title' => 'CV utilization',
+    'description' => t('See the usage of your CVs across entity types.'),
+    'access arguments' => ['Tripal Curator'],
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['tripal_curator_cv_usage_form'],
+    'file' => 'includes/tripal_curator_cv_usage.form.inc',
+    'file_path' => drupal_get_path('module', 'tripal_curator'),
+  ];
+
 
   return $items;
 

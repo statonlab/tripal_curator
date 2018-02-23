@@ -65,8 +65,6 @@ final class tripal_curator_test extends TestCase
 
     $this->assertNotEmpty($list);
 
-    //var_dump($list);
-
   }
 
 

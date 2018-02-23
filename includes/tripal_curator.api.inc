@@ -16,7 +16,6 @@ function tripal_curator_get_property_tables() {
     //confirm that the table contains, and ends with, "prop"
     if (substr_compare($value->table_name, "prop", strlen($value->table_name) - strlen("prop"), strlen("prop")) === 0 && $value->table_name != "chadoprop") {
 
-
       $tables[] = $value->table_name;
     }
   }
@@ -104,11 +103,13 @@ function tripal_curator_get_cv_usage() {
       $cv_array = [];
       if (isset($cv_usage[$cv])) {
         $cv_array = $cv_usage[$cv];
+      }else {
+        //populate basic info about this CV
+          $cv_expanded = chado_generate_var('cv', ['cv_id' =>$cv]);
+        $cv_array["cv_info"] = $cv_expanded;
       }
 
       $cv_array[$prop_table][$type] = [
-        'cv' => $cv,
-        'db' => $db,
         'type' => $type,
         'term_name' => $term_name,
         'value' => $value_text,
