@@ -109,6 +109,8 @@ function tripal_curator_get_cv_usage() {
         $cv_array["cv_info"] = $cv_expanded;
       }
 
+      //TODO:  this is wrong.  value needs to be an ARRAY of values (each useage case).
+      //In addition I'd like to track the record_ids as well
       $cv_array[$prop_table][$type] = [
         'type' => $type,
         'term_name' => $term_name,

@@ -26,7 +26,7 @@ This page is for managing your properties by controlled vocabulary.  Some module
 
 
 
-  $header = ['CV', 'Entity types', 'Unique terms used',  'Total entities'];
+  $header = ['CV', 'Entity types', 'Unique terms used',  'Total entities', "Edit usage"];
   $rows = [];
 
   foreach ($cv_usage as $cv) {
@@ -35,41 +35,26 @@ This page is for managing your properties by controlled vocabulary.  Some module
    unset($cv['cv_info']);
 
     $cv_name = $cv_info->name;
-    $cv_id = $cv_info->cv_info;
+    $cv_id = $cv_info->cv_id;
 
   $types_list = array_keys($cv);
   $entity_count = 0;
   $term_count = 0;
 
     foreach($cv as $prop_table){
-
-      $pt_count = count($prop_table);
-
-
+      $term_count += count($prop_table);
     }
 
 
-
-    $edit_link = '<a href = "edit/' . $cv_id . '"> edit </a>';
+    $edit_link = '<a href = "props_by_cv/edit/' . $cv_id . '"> edit </a>';
     $rows[] = [
       'CV' => $cv_name,
-      'Entity types' => implode("\n", $types_list),
+      'Entity types' => implode(", ", $types_list),
       'Unique terms used' => $term_count,
       'Total entities' => "not implemented yet",// $entity_count,
       'Edit' => $edit_link,
     ];
   }
-
-  $table = [
-    'header' => $header,
-    'rows' => $rows,
-    'attributes' => [],
-    'sticky' => FALSE,
-    'caption' => 'Caption',
-    'colgroups' => [],
-    'empty' => '',
-  ];
-  $output = theme_table($table);
 
   //pagination settings
   $per_page = 20;
