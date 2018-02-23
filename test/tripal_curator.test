@@ -50,7 +50,7 @@ final class tripal_curator_test extends TestCase
   }
 
   public function test_tripal_curator_fetch_props_for_prop_table(){
-    $table = "organism";
+    $table = "cvtermprop";
     $props = tripal_curator_fetch_props_for_prop_table($table);
     $this->assertNotEmpty($props);
     $table = "assay";
@@ -65,7 +65,7 @@ final class tripal_curator_test extends TestCase
 
     $this->assertNotEmpty($list);
 
-    var_dump($list);
+    //var_dump($list);
 
   }
 
