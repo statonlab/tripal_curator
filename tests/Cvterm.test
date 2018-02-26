@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-use \tripal_curator\Chado_property;
+use \tripal_curator\Cvterm;
 
 final class Cvterm_test extends TestCase {
 
@@ -22,7 +22,8 @@ final class Cvterm_test extends TestCase {
         'db_name' => 'tripal'
       )
     );
-    $this->cvterm = $cvterm;
+
+    $this->cvterm = $cvterm->cvterm_id;
 
   }
 
@@ -35,11 +36,19 @@ final class Cvterm_test extends TestCase {
 
   public function test_initialize_property() {
 
-    $cvterm = $this->cvterm;
+    $cvterm_id = $this->cvterm;
 
-    $property  = new Chado_property($cvterm->cvterm_id);
+    $property  = new Cvterm();
+    $property->set_id($cvterm_id);
 
-    $this->assertInstanceOf(Chado_property::class, $property);
+    $this->assertInstanceOf(Cvterm::class, $property);
+
+
+    $cvterm = $property->get_full();
+
+    $this->assertEquals("Curator Test", $cvterm->name);
+    $this->assertEquals('A test CVterm.  Should be deleted in test.', $cvterm->definition);
+
 
     //clean up
     $values = array('cvterm_id' => $cvterm->cvterm_id);
@@ -50,7 +59,6 @@ final class Cvterm_test extends TestCase {
 
   public function __destruct() {
     $cvterm = $this->cvterm;
-    // TODO: Implement __destruct() method.
     //clean up
     $values = array('cvterm_id' => $cvterm->cvterm_id);
     chado_delete_record('cvterm', $values);

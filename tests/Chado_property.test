@@ -49,13 +49,30 @@ final class Chado_property_test extends TestCase {
 
   }
 
-  public function test_property_returns_usage() {
-    $cvterm = $this->cvterm;
+ public function test_set_cvtermprop_search_finds_properties() {
 
-    $usage = $this->property->get_usage();
+   $property = new Chado_property();
 
-    $this->assertNotNull($usage);
-  }
+   $query = [  'name' => 'comment',
+     'cv_id' => array('name' => 'cvterm_property_type')];
+
+   $cvprop_term= tripal_get_cvterm($query);
+
+    $property->set_cvtermprop_search($cvprop_term->cvterm_id);
+
+    $this->assertNotEmpty($property->get_props());
+
+}
+
+
+
+//  public function test_property_returns_usage() {
+//    $cvterm = $this->cvterm;
+//
+//    $usage = $this->property->get_usage();
+//
+//    $this->assertNotNull($usage);
+//  }
 
   public function __destruct() {
     $cvterm = $this->cvterm;
