@@ -9,8 +9,7 @@ final class Cvterm_test extends TestCase {
 //Fake CVterm for testing
   public $cvterm;
 
-  public function __construct() {
-    parent::__construct();
+  public function setUp() {
 
     //build fake cvterm
     $cvterm =  tripal_insert_cvterm(
@@ -57,7 +56,7 @@ final class Cvterm_test extends TestCase {
   }
 
 
-  public function __destruct() {
+  public function tearDown() {
     $cvterm = $this->cvterm;
     //clean up
     $values = array('cvterm_id' => $cvterm->cvterm_id);

@@ -21,6 +21,10 @@ class Chado_property {
   private $properties = [];
 
 
+  private $total_count = 0;
+
+  private $counts_by_table = [];
+
   /**
    * Chado_property constructor.
    *
@@ -44,6 +48,8 @@ class Chado_property {
     $tables = tripal_curator_get_property_tables();
     $query = NULL;
     $results = [];
+    $results_count = [];
+    $count_all = 0;
 
     //This is how i would build it with a single query.
     //might lose out too much information doing it this way though
@@ -66,22 +72,28 @@ class Chado_property {
       $query->fields($table, ['type_id']);
       $query->condition('type_id', $type_id);
       $result = $query->execute()->fetchAll();
-      $results[$table] = $result;
+
+      if ($result) {
+        $results[$table] = $result;
+        $results_count[$table] = count($result);
+
+        $count_all += count($result);
       }
-$this->properties = $results;
 
-$this->cvterm_by_table();
+    }
+    $this->properties = $results;
+    $this->counts_by_table = $results_count;
+    $this->total_count = $count_all;
 
-    return($results);
+
+    return ($results);
   }
 
   private function cvterm_by_table() {
 
     $props = $this->properties;
-    $count_by_table = [];
 
-    foreach($props as $table){
-
+    foreach ($props as $table) {
     }
 
   }

@@ -12,11 +12,11 @@ final class Chado_property_test extends TestCase {
 
 
   public $cvterm;
+
   public $property;
 
-  public function __construct() {
-    parent::__construct();
 
+  protected function setUp() {
 
     $cvterm = tripal_insert_cvterm(
       [
@@ -30,51 +30,39 @@ final class Chado_property_test extends TestCase {
 
     $this->cvterm = $cvterm;
 
+    $property = new Chado_property();
+
+
+    $query = [
+      'name' => 'comment',
+      'cv_id' => ['name' => 'cvterm_property_type'],
+    ];
+
+    $cvprop_term = tripal_get_cvterm($query);
+    $property->set_cvtermprop_search($cvprop_term->cvterm_id);
+    $this->property = $property;
+
   }
 
-  public function testTrueIsTrue() {
-    $foo = TRUE;
-    $this->assertTrue($foo);
-
-  }
 
   public function test_initialize_property() {
-    $cvterm = $this->cvterm;
-
-    $property = new Chado_property();
-    $this->property= $property;
-
+    $property = $this->property;
     $this->assertInstanceOf(Chado_property::class, $property);
+
+  }
+
+  public function test_set_cvtermprop_search_finds_properties() {
+    $property = $this->property;
+    $this->assertNotEmpty($property->get_props());
+  }
+
+  public function test_count_methods() {
+    $property = $this->property;
 
 
   }
 
- public function test_set_cvtermprop_search_finds_properties() {
-
-   $property = new Chado_property();
-
-   $query = [  'name' => 'comment',
-     'cv_id' => array('name' => 'cvterm_property_type')];
-
-   $cvprop_term= tripal_get_cvterm($query);
-
-    $property->set_cvtermprop_search($cvprop_term->cvterm_id);
-
-    $this->assertNotEmpty($property->get_props());
-
-}
-
-
-
-//  public function test_property_returns_usage() {
-//    $cvterm = $this->cvterm;
-//
-//    $usage = $this->property->get_usage();
-//
-//    $this->assertNotNull($usage);
-//  }
-
-  public function __destruct() {
+  protected function tearDown() {
     $cvterm = $this->cvterm;
     $values = ['cvterm_id' => $cvterm->cvterm_id];
     chado_delete_record('cvterm', $values);
