@@ -1,0 +1,60 @@
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+use \tripal_curator\Chado_property;
+
+final class Cvterm_test extends TestCase {
+
+//Fake CVterm for testing
+  public $cvterm;
+
+  public function __construct() {
+    parent::__construct();
+
+    //build fake cvterm
+    $cvterm =  tripal_insert_cvterm(
+      array(
+        'name' => 'Curator Test',
+        'definition' => 'A test CVterm.  Should be deleted in test.',
+        'cv_name' => 'tripal',
+        'is_relationship' => 0,
+        'db_name' => 'tripal'
+      )
+    );
+    $this->cvterm = $cvterm;
+
+  }
+
+  public function testTrueIsTrue()
+  {
+    $foo = true;
+    $this->assertTrue($foo);
+
+  }
+
+  public function test_initialize_property() {
+
+    $cvterm = $this->cvterm;
+
+    $property  = new Chado_property($cvterm->cvterm_id);
+
+    $this->assertInstanceOf(Chado_property::class, $property);
+
+    //clean up
+    $values = array('cvterm_id' => $cvterm->cvterm_id);
+    chado_delete_record('cvterm', $values);
+
+  }
+
+
+  public function __destruct() {
+    $cvterm = $this->cvterm;
+    // TODO: Implement __destruct() method.
+    //clean up
+    $values = array('cvterm_id' => $cvterm->cvterm_id);
+    chado_delete_record('cvterm', $values);
+  }
+
+
+}

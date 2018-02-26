@@ -12,63 +12,54 @@ final class Chado_property_test extends TestCase {
 
 
   public $cvterm;
+  public $property;
 
   public function __construct() {
-    //build fake cvterm
-    $cvterm =  tripal_insert_cvterm(
-      array(
+    parent::__construct();
+
+
+    $cvterm = tripal_insert_cvterm(
+      [
         'name' => 'Curator Test',
         'definition' => 'A test CVterm.  Should be deleted in test.',
         'cv_name' => 'tripal',
         'is_relationship' => 0,
-        'db_name' => 'tripal'
-      )
+        'db_name' => 'tripal',
+      ]
     );
 
     $this->cvterm = $cvterm;
 
   }
 
-  public function testTrueIsTrue()
-  {
-    $foo = true;
+  public function testTrueIsTrue() {
+    $foo = TRUE;
     $this->assertTrue($foo);
 
   }
 
   public function test_initialize_property() {
+    $cvterm = $this->cvterm;
 
-
-
-    $property  = new Chado_property($cvterm->cvterm_id);
+    $property = new Chado_property();
+    $this->property= $property;
 
     $this->assertInstanceOf(Chado_property::class, $property);
 
-    //clean up
-    $values = array('cvterm_id' => $cvterm->cvterm_id);
-    chado_delete_record('cvterm', $values);
 
   }
 
   public function test_property_returns_usage() {
-
-    //build fake cvterm
-    $cvterm =  tripal_insert_cvterm(
-      array(
-        'name' => 'Curator Test',
-        'definition' => 'A test CVterm.  Should be deleted in test.',
-        'cv_name' => 'tripal',
-        'is_relationship' => 0,
-        'db_name' => 'tripal'
-      )
-    );
+    $cvterm = $this->cvterm;
 
     $usage = $this->property->get_usage();
 
     $this->assertNotNull($usage);
+  }
 
-    //clean up
-    $values = array('cvterm_id' => $cvterm->cvterm_id);
+  public function __destruct() {
+    $cvterm = $this->cvterm;
+    $values = ['cvterm_id' => $cvterm->cvterm_id];
     chado_delete_record('cvterm', $values);
 
   }

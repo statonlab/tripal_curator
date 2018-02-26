@@ -17,7 +17,7 @@ class Chado_property {
    */
 
   public function __construct() {
-    
+
   }
 
   //want a setter and a getter method instead
