@@ -51,21 +51,6 @@ class Chado_property {
     $results_count = [];
     $count_all = 0;
 
-    //This is how i would build it with a single query.
-    //might lose out too much information doing it this way though
-    //    foreach ($tables as $table) {
-    //      $t = tripal_curator_chadofy($table);
-    //      if (!$query) {
-    //        $query = db_select($t);
-    //      }
-    //      else {
-    //        $query->full_join($t);
-    //      }
-    //      $query->fields($t, ['type_id']);
-    //
-    //    }
-    //    $query->condition('type_id', $type_id);
-
     foreach ($tables as $table) {
       $t = tripal_curator_chadofy($table);
       $query = db_select($t, $table);
@@ -85,18 +70,9 @@ class Chado_property {
     $this->counts_by_table = $results_count;
     $this->total_count = $count_all;
 
-
     return ($results);
   }
 
-  private function cvterm_by_table() {
-
-    $props = $this->properties;
-
-    foreach ($props as $table) {
-    }
-
-  }
 
   public function set_cvtermprop_value_search() {
 
@@ -118,6 +94,14 @@ class Chado_property {
   public function remap_property() {
 
 
+  }
+
+  public function get_total() {
+    return $this->total_count;
+  }
+
+  public function get_table_count($table) {
+    return $this->counts_by_table[$table];
   }
 
 

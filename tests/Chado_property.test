@@ -56,9 +56,24 @@ final class Chado_property_test extends TestCase {
     $this->assertNotEmpty($property->get_props());
   }
 
-  public function test_count_methods() {
-    $property = $this->property;
 
+  public function test_chadoprop_count_all() {
+    $count = $this->property->get_total();
+    $this->assertNotNull($count);
+
+  }
+
+
+  public function test_chadoprop_count_specific() {
+
+    $count = $this->property->get_table_count("cvtermprop");
+    $this->assertNotNull($count);
+
+    $count = $this->property->get_table_count("analysisprop");
+    $this->assertNull($count);
+
+    $count = $this->property->get_table_count("seabass");
+    $this->assertNull($count);
 
   }
 
