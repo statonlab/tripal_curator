@@ -36,30 +36,53 @@ class Chado_property {
 
 
   /**
-   *  Search in all prop tables for the given cvterm in the type_id column
+   * @param $type_id
    *
-   * @param $type_id - The CVterm ID
+   * @return array
    */
   public function set_cvtermprop_search($type_id) {
     $tables = tripal_curator_get_property_tables();
     $query = NULL;
+    $results = [];
+
+    //This is how i would build it with a single query.
+    //might lose out too much information doing it this way though
+    //    foreach ($tables as $table) {
+    //      $t = tripal_curator_chadofy($table);
+    //      if (!$query) {
+    //        $query = db_select($t);
+    //      }
+    //      else {
+    //        $query->full_join($t);
+    //      }
+    //      $query->fields($t, ['type_id']);
+    //
+    //    }
+    //    $query->condition('type_id', $type_id);
 
     foreach ($tables as $table) {
       $t = tripal_curator_chadofy($table);
-      if (!$query) {
-        $query = db_select($t);
+      $query = db_select($t, $table);
+      $query->fields($table, ['type_id']);
+      $query->condition('type_id', $type_id);
+      $result = $query->execute()->fetchAll();
+      $results[$table] = $result;
       }
-      else {
-        $query->full_join($t);
-      }
-      $query->fields($t, ['type_id']);
+$this->properties = $results;
+
+$this->cvterm_by_table();
+
+    return($results);
+  }
+
+  private function cvterm_by_table() {
+
+    $props = $this->properties;
+    $count_by_table = [];
+
+    foreach($props as $table){
 
     }
-    $query->condition('type_id', $type_id);
-
-    $results = $query->execute()->fetchAll();
-
-    $this->properties = $results;
 
   }
 
@@ -75,7 +98,8 @@ class Chado_property {
    * @return null
    */
   public function get_props() {
-    return ($this->table);
+
+    return ($this->properties);
   }
 
 
