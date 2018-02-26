@@ -15,7 +15,6 @@ final class tripal_curator_test extends TestCase
 
   }
 
-
   public function test_property_tables_returns_prop_tables_only(){
     $tables = tripal_curator_get_property_tables();
     $this->assertNotEmpty($tables);
@@ -25,7 +24,6 @@ final class tripal_curator_test extends TestCase
 
   }
 
-
   public function test_stringreplace_finds_basetable_from_proptable(){
     $string="biomaterialprop";
     $expected = "biomaterial";
@@ -34,8 +32,6 @@ final class tripal_curator_test extends TestCase
     $this->assertEquals($expected, $new_string);
 
   }
-
-
 
   public function test_fetch_props_for_prop_table_finds_properties_if_prop_table(){
     $table = "cvtermprop";
@@ -47,12 +43,10 @@ final class tripal_curator_test extends TestCase
   }
 
 
+
   public function test_property_count_list_returns_cvs(){
-
     $list = tripal_curator_get_cv_usage();
-
     $this->assertNotEmpty($list);
-
   }
 
 

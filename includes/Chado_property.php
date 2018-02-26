@@ -5,21 +5,28 @@ namespace tripal_curator;
 
 class Chado_property {
 
-  private static $cvterm_id;
-
-  public static $prop_table;
-
-  public static $value;
-
-  public static $cvalue;
 
 
+  /**
+   * Chado_property constructor.
+   *
+   * Initialize with nothing instead
+   * Then provide search
+   *
+   * @param $cvterm_id
+   */
 
-  public function __construct($cvterm_id) {
-
-    $this->cvterm_id = $cvterm_id;
-
+  public function __construct() {
+    
   }
 
+  //want a setter and a getter method instead
+
+  public function get_usage(){
+    $usage = [];
+
+    return $usage;
+
+  }
 
 }
