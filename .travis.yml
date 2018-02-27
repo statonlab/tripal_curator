@@ -5,6 +5,9 @@ services:
 
 sudo: required
 
+notifications:
+    slack: statonlab:NWsGjSpYx8d7KlszYrJMVCA7  #todo: encrypt this instead
+
 env:
   - DRUPAL_ROOT=/var/www/html
 
