@@ -5,16 +5,9 @@ namespace tripal_curator;
 
 class Chado_property {
 
-  /**
-   * If specifying a table, will only look in that prop table.
-   * If Null, Class covers *all** prop tables
-   *
-   * @var null
-   */
-  private $table = NULL;
 
   /**
-   * The
+   * The array of all properties using a given cvterm.
    *
    * @var array
    */
@@ -24,6 +17,9 @@ class Chado_property {
   private $total_count = 0;
 
   private $counts_by_table = [];
+
+
+  private $type_id = NULL;
 
   /**
    * Chado_property constructor.
@@ -70,6 +66,8 @@ class Chado_property {
     $this->counts_by_table = $results_count;
     $this->total_count = $count_all;
 
+    $this->type_id = $type_id;
+
     return ($results);
   }
 
@@ -90,9 +88,56 @@ class Chado_property {
     return ($this->properties);
   }
 
+  /**
+   * @param $new_cvterm_id
+   * @param $table
+   *
+   * @return bool
+   */
+  public function remap_property_specific($new_cvterm_id, $table) {
 
-  public function remap_property() {
+    //First, verify the cvterm exists
 
+    $cvterm = tripal_get_cvterm(array(
+      'cvterm_id' => $new_cvterm_id,
+    ));
+
+    if (!$cvterm){
+
+      return FALSE;
+    }
+    $t = tripal_curator_chadofy($table);
+//
+//    $query = db_select($t, $table);
+//    $query->fields($table, ['type_id']);
+//    $query->condition('type_id', $type_id);
+//    $result = $query->execute()->fetchAll();
+
+
+  }
+
+  /**
+   * Changes the type_id of all properties in the object.
+   */
+  public function remap_property_all($new_cvterm_id) {
+
+
+    $cvterm = tripal_get_cvterm(array(
+      'cvterm_id' => $new_cvterm_id,
+    ));
+
+
+    if (!$cvterm){
+  tripal_set_message("Unable to remap properties, invalid CVterm " . $new_cvterm_id .  " supplied.", TRIPAL_ERROR);
+      return FALSE;
+    }
+
+    $properties = $this->properties;
+
+    foreach($properties as $proptable){
+      $ids = array_keys($proptable);
+
+    }
 
   }
 
@@ -100,9 +145,22 @@ class Chado_property {
     return $this->total_count;
   }
 
+  /**
+   * Returns the number of properties in that specific table in the object.
+   *
+   * @param $table
+   *
+   * @return mixed
+   */
   public function get_table_count($table) {
-    return $this->counts_by_table[$table];
+    if (isset($this->counts_by_table[$table])) {
+      return $this->counts_by_table[$table];
+    }
   }
 
+
+  public function get_type_id() {
+    return $this->type_id;
+  }
 
 }

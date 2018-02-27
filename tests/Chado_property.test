@@ -28,6 +28,7 @@ final class Chado_property_test extends TestCase {
       ]
     );
 
+
     $this->cvterm = $cvterm;
 
     $property = new Chado_property();
@@ -77,10 +78,31 @@ final class Chado_property_test extends TestCase {
 
   }
 
+
+  public function test_remap_property_specific() {
+
+    $term_two = $this->cvterm;
+
+    $this->property->remap_property_all($term_two->cvterm_id);
+    $type_id = $this->property->get_type_id;
+
+  }
+
   protected function tearDown() {
+
+
     $cvterm = $this->cvterm;
     $values = ['cvterm_id' => $cvterm->cvterm_id];
     chado_delete_record('cvterm', $values);
+
+    $query = [
+      'name' => 'comment',
+      'cv_id' => ['name' => 'cvterm_property_type'],
+    ];
+
+    $cvprop_term = tripal_get_cvterm($query);
+
+    $this->property->remap_property_all($cvprop_term->cvterm_id);
 
   }
 
