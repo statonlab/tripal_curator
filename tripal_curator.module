@@ -45,9 +45,14 @@ function tripal_curator_menu() {
   ];
 
 //For modifying a property
-  $items[$admin_url_base . "/CVtermprop_edit/%"] = [
+  $items[$admin_url_base . "/edit_type_id/%"] = [
+    'title' => 'Edit type ID',
+    'access arguments' => ['Tripal Curator'],
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['tripal_curator_edit_cvterm_type_form', 5],
+    'file' => 'includes/tripal_curator_edit_cvterm_type.form.inc',
+    'file_path' => drupal_get_path('module', 'tripal_curator'),
     ];
-
 
 
   return $items;

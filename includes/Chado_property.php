@@ -88,31 +88,8 @@ class Chado_property {
     return ($this->properties);
   }
 
-  /**
-   * @param $new_cvterm_id
-   * @param $table
-   *
-   * @return bool
-   */
-  public function remap_property_specific($new_cvterm_id, $table) {
 
-    //First, verify the cvterm exists
-
-    $cvterm = tripal_get_cvterm(array(
-      'cvterm_id' => $new_cvterm_id,
-    ));
-
-    if (!$cvterm){
-
-      return FALSE;
-    }
-    $t = tripal_curator_chadofy($table);
-//
-//    $query = db_select($t, $table);
-//    $query->fields($table, ['type_id']);
-//    $query->condition('type_id', $type_id);
-//    $result = $query->execute()->fetchAll();
-
+  public function specify_tables($tables){
 
   }
 
@@ -137,7 +114,6 @@ class Chado_property {
       $ids = array_keys($proptable);
 
     }
-
   }
 
   public function get_total() {

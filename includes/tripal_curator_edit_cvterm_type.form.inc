@@ -15,6 +15,10 @@
  */
 function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
 
+  $form['source_cvterm_id'] = [
+    '#type' => 'value',
+    '#value' => $type_id
+  ];
 
   ### Display type_id info
 
@@ -136,17 +140,17 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
   }
 
 
-  $default_c_type = 'All Property Tables';
+  $default_c_type = 'all';
 
 
   $form['curation_type'] = [
     '#title' => 'Curation Type',
     '#type' => 'radios',
     '#description' => 'Curate all properties, or just specific entity types?',
-    '#options' => ['All Property Tables', 'Select Property Tables'],
-    '#default_value' => 'All Property Tables',
+    '#options' => ['all' => 'All Property Tables', 'select' => 'Select Property Tables'],
+    '#default_value' => $default_c_type,
     '#ajax' => [
-      'callback' => $default_c_type,
+      'callback' => 'tripal_curator_type_callback',
       'wrapper' => 'div1_wrapper',
       'effect' => 'fade',
     ],
@@ -174,16 +178,29 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
 
   }
 
-
-  if ($curation_scope == 'Select Property Tables'){
+  if ($curation_scope == 'select'){
     //We're converting select property tables
     $property_tables = [];
 
     foreach ($properties as $table_name => $property) {
+      $count = $chado_property->get_table_count($table_name);
 
-      $property_tables[] = $table_name;
-
+      $property_tables[$table_name] = ['name' =>$table_name, 'count' => $count];
     }
+
+
+    $header = array(
+      'name' => t('Property Table Name'),
+      'count' => t('Number of Entries'),
+    );
+
+    $form['div1']['property_table_select'] = [
+      '#type' => 'tableselect',
+      '#header' => $header,
+      '#options' => $property_tables,
+      '#multiple' => TRUE
+    ];
+
   }
 
 
@@ -195,8 +212,72 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
   return $form;
 }
 
+function tripal_curator_edit_cvterm_type_form_validate($form, &$form_state) {
+
+  $values = $form_state['values'];
+
+  $selected_target_cvterm=  null;
+
+  foreach ($values as $value_key => $value){
+
+    if (preg_match('/term-/', $value_key)){
+
+      if ($value = "on"){
+        $selected_target_cvterm = str_replace('term-', '', $value_key);
+      }
+    }
+  }
+
+  if (!$selected_target_cvterm){
+    form_set_error('destination_type', t("You must select a valid destination CVterm. You must press Lookup Term and select a CVterm."));
+  }
+
+  $convert_type = $values['curation_type'];
+
+  if ($convert_type == 'select'){
+
+    if (!isset($values['property_table_select'])) {
+      form_set_error('property_table_select', t("You must select at least one property table if converted selected tables."));
+
+    }
+
+  }
+
+}
+
 
 function tripal_curator_edit_cvterm_type_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  $convert_type = $values['curation_type'];
+$selected_tables = null;
+  if ($convert_type == 'select'){
+    $selected_tables = $values['property_table_select'];
+  }
+
+  foreach ($values as $value_key => $value){
+
+    if (preg_match('/term-/', $value_key)){
+
+      if ($value = "on"){
+        $selected_target_cvterm = str_replace('term-', '', $value_key);
+      }
+    }
+  }
+
+
+  $source_cvterm = $values['source_cvterm_id'];
+
+  $chado_property = new \tripal_curator\Chado_property();
+
+  $chado_property->set_cvtermprop_search($source_cvterm);
+
+  if ($selected_tables){
+    $chado_property->specify_tables($selected_tables);
+  }
+
+  $chado_property->remap_property_all($selected_target_cvterm);
+
+
 
 }
 

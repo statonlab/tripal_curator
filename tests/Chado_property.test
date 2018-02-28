@@ -78,14 +78,12 @@ final class Chado_property_test extends TestCase {
 
   }
 
+  public function test_specify_tables() {
 
-  public function test_remap_property_specific() {
+   $property =  $this->property;
 
-    $term_two = $this->cvterm;
-
-    $this->property->remap_property_all($term_two->cvterm_id);
-    $type_id = $this->property->get_type_id;
-
+   $property->specify_tables(['seabass']);
+    
   }
 
   protected function tearDown() {
