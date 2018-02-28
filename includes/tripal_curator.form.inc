@@ -104,8 +104,6 @@ function tripal_curator_form($form, &$form_state) {
         ),
       );
 
-      dpm($form_state);
-
       if (array_key_exists('values', $form_state) and array_key_exists($term_element_name, $form_state['values']) and
         $form_state['values'][$term_element_name] == 1) {
         $selected_term = $term;

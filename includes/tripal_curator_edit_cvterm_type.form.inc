@@ -34,7 +34,11 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
   //  ));
 
   $cvterm_name = $cvterm_record->name;
-  $cvterm_definition = $cvterm_record->definition;
+  $cvterm_definition = 'Undefined.';
+
+  if (isset($cvterm_record->definition)){
+    $cvterm_definition = $cvterm_record->definition;
+  }
 
 
   $chado_property = new \tripal_curator\Chado_property();

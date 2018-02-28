@@ -167,10 +167,7 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id) {
     $row = [$name];
     $rows[] = $row;
   }
-  dpm($rows);
   $table = ['rows' => $rows, 'header' => $header];
-
-  dpm($table);
 
 
   $form['cvterms']['table'] = [
