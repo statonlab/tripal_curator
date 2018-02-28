@@ -15,6 +15,12 @@
  */
 function tripal_curator_assign_cvalue_form($form, &$form_state) {
 
+
+  $markup = "<p>The Tripal Curator Cvalue mapper lets you easily batch assign CVterms to the value of your properties, where supported.  You can even split properties into multiple Properties!</p>";
+  $form['welcome'] = [
+    '#markup' => $markup
+  ];
+
   //Step one: Search for *VALUE* entries
 
   //Step two: Determine Cvalue
@@ -27,6 +33,6 @@ function tripal_curator_assign_cvalue_form($form, &$form_state) {
 
 
 
-
+return $form;
 
 }

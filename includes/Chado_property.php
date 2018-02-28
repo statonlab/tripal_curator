@@ -42,9 +42,10 @@ class Chado_property {
   /**
    * The property fields that will be queried against.
    * Setup functions should change this to account for ['cvalue_id')
+   *
    * @var array
    */
-   private $property_fields_to_include = [];
+  private $property_fields_to_include = [];
 
 
   /**
@@ -58,7 +59,11 @@ class Chado_property {
     $this->type_id = $type_id;
     //TODO: should we instead include the cvalue_id, and remove it it ifit doesnt exist in the loop via db_field_exists()?
 
-    $this->property_fields_to_include = ['type_id', 'value', 'rank']; //can't assume we have cvalue_id.
+    $this->property_fields_to_include = [
+      'type_id',
+      'value',
+      'rank',
+    ]; //can't assume we have cvalue_id.
 
     $tables = tripal_curator_get_property_tables();
     return $this->setup_property_by_tables($tables);
@@ -69,30 +74,38 @@ class Chado_property {
    * Builds the class to hold all properties with no cvalue.
    *
    */
-  public function build_blank_cvalues(){
+  public function build_blank_cvalues() {
     $tables = tripal_curator_get_property_tables();
 
-    $cvalue_tables  = [];
+    $cvalue_tables = [];
 
     //remove prop tables without a cvalue_id, and update the fields array
-    foreach ($tables as $table){
-      db_field_exists(tripal_curator_chadofy($table), 'cvalue_id') ? $cvalue_tables[] = $table  : null;
+    foreach ($tables as $table) {
+      db_field_exists(tripal_curator_chadofy($table), 'cvalue_id') ? $cvalue_tables[] = $table : NULL;
     }
 
-    if (count($cvalue_tables) === 0){
+    if (count($cvalue_tables) === 0) {
       tripal_set_message("Looking for prop tables with cvalue_id but none found", TRIPAL_WARNING);
-      return(FALSE);
+      return (FALSE);
     }
-    $this->property_fields_to_include = ['type_id', 'value', 'cvalue_id', 'rank'];
+    $this->property_fields_to_include = [
+      'type_id',
+      'value',
+      'cvalue_id',
+      'rank',
+    ];
+
 
     $properties = $this->setup_property_by_tables($cvalue_tables);
 
+    //TODO: ERROR there are no properties.
     $props_no_cvalues = [];
 
-    foreach ($properties as $property){
+    foreach ($properties as $property) {
 
     }
 
+    return TRUE;
   }
 
 
@@ -112,10 +125,11 @@ class Chado_property {
     $fields = $this->property_fields_to_include;// array of existing fields
 
 
-
     foreach ($tables as $table) {
+
+
       $table_fields = $fields;
-      array_push($table_fields, $table. '_id');
+      array_push($table_fields, $table . '_id');
       $t = tripal_curator_chadofy($table);
       $query = db_select($t, $table);
       $query->fields($table, $table_fields);
@@ -125,7 +139,6 @@ class Chado_property {
       if ($result) {
         $results[$table] = $result;
         $results_count[$table] = count($result);
-
         $count_all += count($result);
       }
     }
@@ -137,7 +150,6 @@ class Chado_property {
     return ($results);
 
   }
-
 
 
   /**
@@ -181,8 +193,6 @@ class Chado_property {
     }
 
     $properties = $this->properties;
-
-    dpm($properties);
 
 
     foreach ($properties as $proptable => $properties) {
