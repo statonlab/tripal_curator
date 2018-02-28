@@ -40,6 +40,14 @@ class Chado_property {
 
 
   /**
+   * The property fields that will be queried against.
+   * Setup functions should change this to account for ['cvalue_id')
+   * @var array
+   */
+   private $property_fields_to_include = ['type_id', 'value', 'rank'];
+
+
+  /**
    * Initialize the class with a type_id.
    *
    * @param $type_id
@@ -51,6 +59,32 @@ class Chado_property {
 
     $tables = tripal_curator_get_property_tables();
     return $this->setup_property_by_tables($tables);
+  }
+
+
+  /**Builds the class to hold all properties with no cvalue.
+   *
+   *
+   */
+  public function build_blank_cvalues(){
+
+    $tables = tripal_curator_get_property_tables();
+
+    $cvalue_tables  = [];
+
+    foreach ($tables as $table){
+      db_field_exists($table, 'cvalue_id') ? $cvalue_tables[] = $table  : null;
+    }
+
+
+    $properties = $this->setup_property_by_tables($cvalue_tables);
+
+    $props_no_cvalues = [];
+
+    foreach ($properties as $property){
+
+    }
+
   }
 
 
@@ -67,11 +101,16 @@ class Chado_property {
     $results_count = [];
     $count_all = 0;
     $type_id = $this->type_id;
+    $fields = $this->property_fields_to_include;// array of existing fields
+
+
 
     foreach ($tables as $table) {
+      $table_fields = $fields;
+      array_push($table_fields, $table. '_id');
       $t = tripal_curator_chadofy($table);
       $query = db_select($t, $table);
-      $query->fields($table, [$table . '_id', 'type_id']);
+      $query->fields($table, $table_fields);
       $query->condition('type_id', $type_id);
       $result = $query->execute()->fetchAll();
 
@@ -90,6 +129,7 @@ class Chado_property {
     return ($results);
 
   }
+
 
 
   /**

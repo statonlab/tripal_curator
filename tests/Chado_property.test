@@ -93,12 +93,42 @@ final class Chado_property_test extends TestCase {
 
   }
 
-  public function testremap_property_all(){
+  public function testremap_property_all() {
     $this->property->remap_property_all($this->cvterm_test->cvterm_id);
 
     $this->assertEquals($this->cvterm_test->cvterm_id, $this->property->get_type_id());
     $this->assertNotEmpty($this->property->get_props());
 
+  }
+
+
+  //define a new test group here
+
+  public function test_build_blank_cvalues_finds_properties() {
+    $property = new Chado_property();
+
+    $property->build_blank_cvalues();
+    $target_props = $this->property->get_props();
+
+    //first assert results have the cvalue_id column
+    foreach ($target_props as $table => $properties) {
+      $test_prop = array_pop($properties);
+      $record_handle = $table . "_id";
+      $record_id = $test_prop->$record_handle;
+      var_dump($record_id);
+
+     $result =  db_select(tripal_curator_chadofy($table))
+        ->fields(["cvalue_id"])
+        ->condition([$record_handle, $record_id])
+        ->execute()->fetch();
+
+     var_dump($result);
+
+    }
+
+    //Now assert our results do have empty cvalue_id
+
+    $this->assertNotEmpty($this->property->get_props());
 
 
   }
@@ -109,7 +139,6 @@ final class Chado_property_test extends TestCase {
 
     $cvterm_existing = $this->cvterm_existing;
     $cvterm_test = $this->cvterm_test;
-
 
 
     //do another sweep for properties that we acciddentally changed to the test prop.
