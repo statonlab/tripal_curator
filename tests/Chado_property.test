@@ -11,7 +11,9 @@ use \tripal_curator\Chado_property;
 final class Chado_property_test extends TestCase {
 
 
-  public $cvterm;
+  public $cvterm_test;
+
+  public $cvterm_existing;
 
   public $property;
 
@@ -29,7 +31,7 @@ final class Chado_property_test extends TestCase {
     );
 
 
-    $this->cvterm = $cvterm;
+    $this->cvterm_test = $cvterm;
 
     $property = new Chado_property();
 
@@ -40,6 +42,7 @@ final class Chado_property_test extends TestCase {
     ];
 
     $cvprop_term = tripal_get_cvterm($query);
+    $this->cvterm_existing = $cvprop_term;
     $property->set_cvtermprop_search($cvprop_term->cvterm_id);
     $this->property = $property;
 
@@ -80,27 +83,43 @@ final class Chado_property_test extends TestCase {
 
   public function test_specify_tables() {
 
-   $property =  $this->property;
+    $property = $this->property;
 
-   $property->specify_tables(['seabass']);
-    
+    $property->specify_tables(['cvtermprop']);
+    $count = $this->property->get_table_count("cvtermprop");
+    $this->assertNotEmpty($count);
+
+    $this->property->set_cvtermprop_search($this->cvterm_term_existing);//specify all tables again...
+
   }
+
+  public function testremap_property_all(){
+    $this->property->remap_property_all($this->cvterm_test->cvterm_id);
+
+    $this->assertEquals($this->cvterm_test->cvterm_id, $this->property->get_type_id());
+    $this->assertNotEmpty($this->property->get_props());
+
+
+
+  }
+
 
   protected function tearDown() {
 
 
-    $cvterm = $this->cvterm;
-    $values = ['cvterm_id' => $cvterm->cvterm_id];
+    $cvterm_existing = $this->cvterm_existing;
+    $cvterm_test = $this->cvterm_test;
+
+
+
+    //do another sweep for properties that we acciddentally changed to the test prop.
+    $clean_property = new Chado_property();
+    $clean_property->set_cvtermprop_search($cvterm_test->cvterm_id);
+    $clean_property->remap_property_all($cvterm_existing->cvterm_id);
+
+
+    $values = ['cvterm_id' => $cvterm_test->cvterm_id];
     chado_delete_record('cvterm', $values);
-
-    $query = [
-      'name' => 'comment',
-      'cv_id' => ['name' => 'cvterm_property_type'],
-    ];
-
-    $cvprop_term = tripal_get_cvterm($query);
-
-    $this->property->remap_property_all($cvprop_term->cvterm_id);
 
   }
 

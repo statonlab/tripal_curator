@@ -54,9 +54,22 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
     '#description' => 'This is the selected property type.'
   ];
 
+
+
   $form['Source Type']['info'] = [
     '#markup' => $info_markup,
   ];
+
+
+
+  if ($total_count === 0){
+
+    $form['Source Type']['kill'] = [
+      '#markup' => "No properties utilize this CVterm as their type!",
+    ];
+    return($form);
+
+  }
 
   $form['destination_type'] = [
     '#type' => 'fieldset',
@@ -276,7 +289,6 @@ $selected_tables = null;
   }
 
   $chado_property->remap_property_all($selected_target_cvterm);
-
 
 
 }
