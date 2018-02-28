@@ -13,36 +13,46 @@ final class CV_test extends TestCase {
 
     $CV = new CV;
 
+//We use this cv for testing because it's included in the chado install, linked to properties.
+    $cv_record = tripal_get_cv(['name' => 'cvterm_property_type']);
+    $CV->set_id($cv_record->cv_id);
     $this->CV = $CV;
 
+  }
+
+  public function test_CV_inits_and_gets_terms() {
+    $CV = $this->CV;
+    $terms = $CV->get_terms();
+    $this->assertNotNull($terms);
+
+    $this->assertNotEmpty($terms);
+
+    foreach ($terms as $term) {
+
+      $this->assertArrayHasKey("type", $term);
+      $this->assertArrayHasKey("term_name", $term);
+      $this->assertArrayHasKey("value", $term);
     }
+  }
+  public function test_CV_returns_prop_tables_on_init() {
+    $CV = $this->CV;
+    $tables =$CV->get_prop_tables();
 
-
-    public function test_CV_inits_and_gets_terms() {
-      //this is a bad test, we should insert a test CV first.
-      $CV = $this->CV->set_id(9);
-      $terms = $CV->get_terms();
-      $this->assertNotNull($terms);
-    }
-
-    public function test_CV_returns_specific_terms(){
-
-      $CV = $this->CV->set_id(9);
-
-      $terms = $CV->get_terms_specific('biomaterialprop');
-
-      $this->assertNotNull($terms);
-
-
-    }
-
-  public function test_CV_has_terms() {
+    $this->assertNotEmpty($tables);
 
   }
 
-  public function test_CVterms_narrowed_by_prop_table(){
+  public function test_CV_returns_specific_terms() {
+
+    $CV = $this->CV;
+
+    $tables =$CV->get_prop_tables();
+
+    $terms = $CV->get_terms_specific([$tables[0]]);
+
+    $this->assertNotNull($terms);
+    $this->assertNotEmpty($terms);
 
   }
-
 
 }
