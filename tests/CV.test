@@ -29,16 +29,16 @@ final class CV_test extends TestCase {
 
     foreach ($terms as $term) {
 
-      $this->assertArrayHasKey("type", $term);
-      $this->assertArrayHasKey("term_name", $term);
-      $this->assertArrayHasKey("value", $term);
+      $this->assertArrayHasKey("type", $term, "There was no type key for the term object.");
+      $this->assertArrayHasKey("term_name", $term, "There was no term name key for the term object.");
+      $this->assertArrayHasKey("value", $term, "there was no value key for the term object.");
     }
   }
   public function test_CV_returns_prop_tables_on_init() {
     $CV = $this->CV;
     $tables =$CV->get_prop_tables();
 
-    $this->assertNotEmpty($tables);
+    $this->assertNotEmpty($tables, "The get_prop_tables() method failed to return property tables containing the CV (cvterm_property_type).");
 
   }
 
