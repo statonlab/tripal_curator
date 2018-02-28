@@ -1,7 +1,7 @@
 <?php
 
 
-namespace tripal_curator;
+namespace tripal_curator\includes;
 
 
 class CV {
@@ -15,7 +15,7 @@ class CV {
 
   private $terms;
 
-  private $prop_tables;
+  private $prop_tables = [];
 
   private $cvterms_by_prop_table;
 
@@ -24,9 +24,7 @@ class CV {
     $this->cv_id = $id;
 
     //set all prop tables
-
     $usage = tripal_curator_get_cv_usage($id);
-
 
     if ($usage) {
 
@@ -34,6 +32,7 @@ class CV {
       $this->cv_name = $cv_info->name;
       $this->cv_definition = $cv_info->definition;
       unset($usage["cv_info"]);
+
 
       $this->prop_tables = array_keys($usage);
 
@@ -44,7 +43,7 @@ class CV {
 
 
   /**Returns all terms stored in the object.
-   * To return only terms for a specifc prop table, use get terms specific instead, or, use set props first.
+   * To return only terms for a specific prop table, use get terms specific instead, or, use set props first.
    *
    * @return array
    */
@@ -103,9 +102,15 @@ class CV {
     return $term_list;
   }
 
-
+  /**
+   * @return array
+   */
   public function get_prop_tables() {
     return $this->prop_tables;
+  }
+
+  public function get_cv_name() {
+    return $this->cv_name;
   }
 
 }

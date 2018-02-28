@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-use \tripal_curator\CV;
+use \tripal_curator\includes\CV;
 
 final class CV_test extends TestCase {
 
