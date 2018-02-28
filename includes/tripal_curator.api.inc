@@ -82,10 +82,12 @@ function tripal_curator_chadofy($string) {
 /**
  * Goes through all properties in all chado property tables and indexes what
  * CVs are used where.
+
+ * @param null $desired_cv  - If a cv_id is given, will return this cv's usage only.
  *
- * @return array
+ * @return array|mixed
  */
-function tripal_curator_get_cv_usage() {
+function tripal_curator_get_cv_usage($desired_cv = null) {
 
   $cv_usage = [];
 
@@ -119,6 +121,11 @@ function tripal_curator_get_cv_usage() {
       $cv_usage[$cv] = $cv_array;
     }
   }
+
+  if ($desired_cv){
+    return $cv_usage[$desired_cv];
+  }
+
 
   return ($cv_usage);
 }

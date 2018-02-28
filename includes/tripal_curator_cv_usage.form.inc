@@ -46,7 +46,7 @@ This page is for managing your properties by controlled vocabulary.  Some module
     }
 
 
-    $edit_link = '<a href = "props_by_cv/edit/' . $cv_id . '"> edit </a>';
+    $edit_link = '<a href = "CV_usage/' . $cv_id . '"> edit </a>';
     $rows[] = [
       'CV' => $cv_name,
       'Entity types' => implode(", ", $types_list),
@@ -77,4 +77,74 @@ This page is for managing your properties by controlled vocabulary.  Some module
 
 
   return $form;
+}
+
+
+function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id){
+
+  //get all cvterms for this cv
+
+  $cvterms = new \tripal_curator\includes\CV();
+
+  $cvterms->set_id($cv_id);
+
+  $cv_name = $cvterms->get_cv_name();
+
+  $tables =$cvterms->get_prop_tables();
+
+  $tables_convert = [];
+  foreach ($tables as $table){
+    $tables_convert[$table] = $table;
+  }
+
+  if (count($tables) == 0){
+
+    $message = "<p>The CV {$cv_name} is not utilized in any property tables.</p>";
+    $form['message'] = [
+      '#markup' => $message
+    ];
+
+  }
+
+  $form['check_proptables'] = [
+    '#title' => 'Select Property Tables',
+    '#type' => 'checkboxes',
+    '#description' => 'Tripal curator will allow you to redefine the CVterms for properties in all tables or specific tables.  Check the property tables you would like to modify.',
+    '#options' => $tables_convert,
+    '#default_value' => array_keys($tables_convert),
+    '#ajax' => array(
+      'callback' => 'tripal_curator_cv_filter_cvterms_callback',
+      'wrapper' => 'curator_filtered_cvterms',
+      'effect' => 'fade',
+    ),
+  ];
+
+
+  $form['cvterms'] = [
+    '#type' => 'fieldset',
+    '#prefix' => '<div id="curator_filtered_cvterms">',
+    '#suffix' => '</div>',
+  ];
+
+  dpm($form_state);
+  $included = NULL;
+
+  if (!isset($form_state['values'])){
+   $form_state['values']['check_proptables'] = $tables_convert;
+  }
+  $table = [];
+
+  $form['cvterms']['table'] = [
+    '#markup' => $table
+  ];
+
+
+  return $form;
+}
+
+
+function tripal_curator_cv_filter_cvterms_callback($form, &$form_state){
+
+  return $form['cvterms'];
+
 }
