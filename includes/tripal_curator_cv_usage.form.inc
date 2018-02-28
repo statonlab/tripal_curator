@@ -17,31 +17,33 @@ This page is for managing your properties by controlled vocabulary.  Some module
 ";
 
   $form['welcome'] = [
-    '#markup' => $markup
+    '#markup' => $markup,
   ];
 
-  $cv_usage= tripal_curator_get_cv_usage();
+  $cv_usage = tripal_curator_get_cv_usage();
 
-  dpm($cv_usage);
-
-
-
-  $header = ['CV', 'Entity types', 'Unique terms used',  'Total entities', "Edit usage"];
+  $header = [
+    'CV',
+    'Entity types',
+    'Unique terms used',
+    'Total entities',
+    "Edit usage",
+  ];
   $rows = [];
 
   foreach ($cv_usage as $cv) {
     $cv_info = $cv['cv_info'];
 
-   unset($cv['cv_info']);
+    unset($cv['cv_info']);
 
     $cv_name = $cv_info->name;
     $cv_id = $cv_info->cv_id;
 
-  $types_list = array_keys($cv);
-  $entity_count = 0;
-  $term_count = 0;
+    $types_list = array_keys($cv);
+    $entity_count = 0;
+    $term_count = 0;
 
-    foreach($cv as $prop_table){
+    foreach ($cv as $prop_table) {
       $term_count += count($prop_table);
     }
 
@@ -80,7 +82,7 @@ This page is for managing your properties by controlled vocabulary.  Some module
 }
 
 
-function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id){
+function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id) {
 
   //get all cvterms for this cv
 
@@ -90,18 +92,19 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id){
 
   $cv_name = $cvterms->get_cv_name();
 
-  $tables =$cvterms->get_prop_tables();
+
+  $tables = $cvterms->get_prop_tables();
 
   $tables_convert = [];
-  foreach ($tables as $table){
+  foreach ($tables as $table) {
     $tables_convert[$table] = $table;
   }
 
-  if (count($tables) == 0){
+  if (count($tables) == 0) {
 
-    $message = "<p>The CV {$cv_name} is not utilized in any property tables.</p>";
+    $message = "<p>The CV " . $cv_name . " is not utilized in any property tables.</p>";
     $form['message'] = [
-      '#markup' => $message
+      '#markup' => $message,
     ];
 
   }
@@ -112,11 +115,11 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id){
     '#description' => 'Tripal curator will allow you to redefine the CVterms for properties in all tables or specific tables.  Check the property tables you would like to modify.',
     '#options' => $tables_convert,
     '#default_value' => array_keys($tables_convert),
-    '#ajax' => array(
+    '#ajax' => [
       'callback' => 'tripal_curator_cv_filter_cvterms_callback',
       'wrapper' => 'curator_filtered_cvterms',
       'effect' => 'fade',
-    ),
+    ],
   ];
 
 
@@ -126,16 +129,52 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id){
     '#suffix' => '</div>',
   ];
 
-  dpm($form_state);
   $included = NULL;
 
-  if (!isset($form_state['values'])){
-   $form_state['values']['check_proptables'] = $tables_convert;
+  if (!isset($form_state['values'])) {
+    $form_state['values']['check_proptables'] = $tables_convert;
   }
-  $table = [];
+
+  if (isset($form_state['values']) && isset($form_state['values']['check_proptables'])) {
+    $included = $form_state['values']['check_proptables'];
+
+  }
+
+
+  $rows = [];
+  $header = ['CVterm'];
+
+
+  $terms = $cvterms->get_terms_specific(array_keys($included));
+
+  foreach ($terms as $term) {
+    $name = NULL;
+    $values = [];
+    $instance_count = 0;
+
+    foreach ($term as $term_instance) {
+
+      $row = [];
+      $type = $term_instance['type'];
+      $name = $term_instance['term_name'];
+      $value = $term_instance['value'];
+
+      $instance_count++;
+    }
+
+    $name = l($name . ": " . $instance_count . " uses", 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
+
+    $row = [$name];
+    $rows[] = $row;
+  }
+  dpm($rows);
+  $table = ['rows' => $rows, 'header' => $header];
+
+  dpm($table);
+
 
   $form['cvterms']['table'] = [
-    '#markup' => $table
+    '#markup' => theme('table', $table),
   ];
 
 
@@ -143,7 +182,7 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id){
 }
 
 
-function tripal_curator_cv_filter_cvterms_callback($form, &$form_state){
+function tripal_curator_cv_filter_cvterms_callback($form, &$form_state) {
 
   return $form['cvterms'];
 

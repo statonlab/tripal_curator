@@ -121,7 +121,6 @@ class Chado_property {
    */
   public function remap_property_all($new_cvterm_id) {
 
-
     $cvterm = tripal_get_cvterm(array(
       'cvterm_id' => $new_cvterm_id,
     ));
@@ -152,7 +151,11 @@ class Chado_property {
    *
    * @return mixed
    */
-  public function get_table_count($table) {
+  public function get_table_count($table =null) {
+
+    if (!$table){
+      return $this->counts_by_table;
+    }
     if (isset($this->counts_by_table[$table])) {
       return $this->counts_by_table[$table];
     }
