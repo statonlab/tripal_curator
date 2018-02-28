@@ -1,0 +1,30 @@
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+use \tripal_curator\CV;
+
+final class CV_test extends TestCase {
+
+  //Fake CVterm for testing
+  public $cv;
+
+  public function setUp() {
+
+    $CV = new CV;
+
+    //this is a bad test, we should insert a test CV first.
+    $CV->set_id(9);
+  }
+
+  public function test_CV_has_terms() {
+
+  }
+
+  public function test_CVterms_narrowed_by_prop_table(){
+
+
+  }
+
+
+}

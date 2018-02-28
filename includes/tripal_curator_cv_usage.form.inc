@@ -46,7 +46,7 @@ This page is for managing your properties by controlled vocabulary.  Some module
     }
 
 
-    $edit_link = '<a href = "props_by_cv/edit/' . $cv_id . '"> edit </a>';
+    $edit_link = '<a href = "CV_usage/' . $cv_id . '"> edit </a>';
     $rows[] = [
       'CV' => $cv_name,
       'Entity types' => implode(", ", $types_list),
@@ -77,4 +77,16 @@ This page is for managing your properties by controlled vocabulary.  Some module
 
 
   return $form;
+}
+
+
+function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id){
+
+  //get all cvterms for this cv
+
+  $cvterms = new \tripal_curator\Cvterm();
+
+
+  return $form;
+
 }
