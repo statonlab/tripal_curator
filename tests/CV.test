@@ -7,22 +7,40 @@ use \tripal_curator\CV;
 final class CV_test extends TestCase {
 
   //Fake CVterm for testing
-  public $cv;
+  public $CV;
 
   public function setUp() {
 
     $CV = new CV;
 
-    //this is a bad test, we should insert a test CV first.
-    $CV->set_id(9);
-  }
+    $this->CV = $CV;
+
+    }
+
+
+    public function test_CV_inits_and_gets_terms() {
+      //this is a bad test, we should insert a test CV first.
+      $CV = $this->CV->set_id(9);
+      $terms = $CV->get_terms();
+      $this->assertNotNull($terms);
+    }
+
+    public function test_CV_returns_specific_terms(){
+
+      $CV = $this->CV->set_id(9);
+
+      $terms = $CV->get_terms_specific('biomaterialprop');
+
+      $this->assertNotNull($terms);
+
+
+    }
 
   public function test_CV_has_terms() {
 
   }
 
   public function test_CVterms_narrowed_by_prop_table(){
-
 
   }
 
