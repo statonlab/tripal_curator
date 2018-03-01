@@ -77,6 +77,8 @@ class Chado_property {
   public function build_blank_cvalues() {
     $tables = tripal_curator_get_property_tables();
 
+    $this->type_id = NULL;//Null the type_id, we're looking for null here.
+
     $cvalue_tables = [];
 
     //remove prop tables without a cvalue_id, and update the fields array
@@ -95,21 +97,56 @@ class Chado_property {
       'rank',
     ];
 
-
-    $properties = $this->setup_property_by_tables($cvalue_tables);
-
-    //TODO: ERROR there are no properties.
-    $props_no_cvalues = [];
-
-    foreach ($properties as $property) {
-
-    }
+    $properties = $this->setup_property_by_cvalue($cvalue_tables);
 
     return TRUE;
   }
 
 
   /**
+   * Becaus we aren't specifying a type_id (might have multiple types) it's easier to have a separate less DRY command for searching for cvalues.
+   * @param $tables
+   */
+
+  private function setup_property_by_cvalue($tables) {
+    $query = NULL;
+    $results = [];
+    $results_count = [];
+    $count_all = 0;
+    $type_id = $this->type_id;
+    $fields = $this->property_fields_to_include;// array of existing fields
+
+    foreach ($tables as $table) {
+
+      $table_fields = $fields;
+      array_push($table_fields, $table . '_id');
+      $t = tripal_curator_chadofy($table);
+      $query = db_select($t, $table);
+      $query->fields($table, $table_fields);
+
+      if (!$type_id){
+        $query->isNull('cvalue_id');
+      } else {
+        $query->condition('cvalue_id', $type_id);
+      }
+
+      $result = $query->execute()->fetchAll();
+
+      if ($result) {
+        $results[$table] = $result;
+        $results_count[$table] = count($result);
+        $count_all += count($result);
+      }
+    }
+    $this->properties = $results;
+    $this->counts_by_table = $results_count;
+    $this->total_count = $count_all;
+
+    return ($results);
+
+  }
+
+    /**
    * Method for populating or re-populating the class.
    *
    * @param $tables

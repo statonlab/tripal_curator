@@ -109,31 +109,21 @@ final class Chado_property_test extends TestCase {
 
     $result = $temp_property->build_blank_cvalues();
 
-    if (!$result){
+    if (!$result) {
       print("\n\nNo prop tables with cvalue_id in test environment, skipping test_build_blank_cvalues_finds_properties\n");
       return;
     }
 
-   // $target_props = $temp_property->get_props();
-//
-//    //first assert results have the cvalue_id column
-//    foreach ($target_props as $table => $properties) {
-//      $test_prop = array_pop($properties);
-//      $record_handle = $table . "_id";
-//      $record_id = $test_prop->$record_handle;
-//      print ("$table\n");
-//
-//     $result =  db_select( tripal_curator_chadofy($table),  "t")
-//        ->fields("t", ["cvalue_id"])
-//        ->condition($record_handle, $record_id)
-//        ->execute()->fetch();
-//
-//    }
+    $target_prop_tables = $temp_property->get_props();
+    $this->assertNotEmpty($target_prop_tables, "Build blank cvalues did not find any properties with cvalue_ids but no cvalues.");
 
-    //Now assert our results do have empty cvalue_id
+    $target_props = array_pop($target_prop_tables);
+    $this->assertNotEmpty($target_props, "Build blank cvalues returned a table without no properties.");
 
-   // $this->assertNotEmpty($target_props);
+    $prop = array_pop($target_props);
 
+    $this->assertObjectHasAttribute("cvalue_id", $prop, "Property retrieved from build_blank_cvalues lacks cvalue_id key.");
+    $this->assertNull($prop->cvalue_id, "Property retrieved from build_blank_cvalues has non-null cvalue_id");
 
   }
 

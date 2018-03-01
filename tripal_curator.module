@@ -64,7 +64,7 @@ function tripal_curator_menu() {
     'file' => 'includes/tripal_curator_assign_cvalue.form.inc',
     'file_path' => drupal_get_path('module', 'tripal_curator'),
   ];
-  
+
   return $items;
 
 }
