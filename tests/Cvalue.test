@@ -27,6 +27,28 @@ final class Cvalue_test extends TestCase {
 
   }
 
+  public function test_defining_by_text(){
+
+    $cval = $this->cvalue;
+
+    $cval->set_value_text("Discrete.");
+
+    $props = $cval->get_properties();
+
+    $this->assertNotEmpty($props);
+
+    var_dump($props);
+
+    foreach ($props as $table => $properties){
+
+      $this->assertNotNull($table);
+      $this->assertNotEmpty($properties);
+
+    }
+
+
+
+  }
 
   public function tearDown() {
 
