@@ -112,6 +112,7 @@ final class Chado_property_test extends TestCase {
     if (!$result) {
       print("\n\nNo prop tables with cvalue_id in test environment, skipping test_build_blank_cvalues_finds_properties\n");
       return;
+      //TODO: Instead, we could check if a table has the cvalue_id column, and insert a new test property with cvalue_id = null
     }
 
     $target_prop_tables = $temp_property->get_props();
