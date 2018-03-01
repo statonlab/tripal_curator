@@ -6,6 +6,7 @@ include_once ('includes/tripal_curator.api.inc');
 include_once ('includes/Chado_property.php');
 include_once ('includes/Cvterm.php');
 include_once ('includes/CV.php');
+include_once ('includes/CValue.php');
 
 /**
  * implement hook menu
