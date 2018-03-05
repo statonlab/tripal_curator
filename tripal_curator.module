@@ -60,11 +60,11 @@ function tripal_curator_menu() {
 
   //tripal_curator_edit_cvalue_form
 
-  $items[$admin_url_base . "/edit_cvalue/%"] = [
+  $items[$admin_url_base . "/edit_cvalue/%/%"] = [
     'title' => 'Edit Cvalue',
     'access arguments' => ['Tripal Curator'],
     'page callback' => 'drupal_get_form',
-    'page arguments' => ['tripal_curator_edit_cvalue_form', 5],
+    'page arguments' => ['tripal_curator_edit_cvalue_form', 5, 6],
     'file' => 'includes/tripal_curator_edit_cvalue_type.form.inc',
     'file_path' => drupal_get_path('module', 'tripal_curator'),
   ];

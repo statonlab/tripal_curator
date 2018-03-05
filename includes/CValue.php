@@ -96,6 +96,42 @@ class CValue {
   }
 
 
+  public function set_cvalue_search($cvalue_id){
+
+    $tables = tripal_curator_get_property_tables_with_cvalues();
+
+    $count_all = 0;
+    $properties = [];
+
+    $types = [];
+
+    foreach ($tables as $table) {
+      $t = tripal_curator_chadofy($table);
+      $query = db_select($t, $table);
+      $query->fields($table, [
+        $table . '_id',
+        'type_id',
+        'rank',
+        'value',
+        'cvalue_id',
+      ]);
+      $query->condition('cvalue_id', $cvalue_id);
+      $results = $query->execute()->fetchAll();
+      if ($results) {
+        $properties[$table] = $results;
+        $count_all += count($results);
+//        foreach ($results as $result) {
+//
+//        }
+      }
+    }
+    $this->properties_by_table = $properties;
+    $this->total_count = $count_all;
+    return NULL;
+
+  }
+
+
   /**
    * @param $cvalue_id
    *
@@ -220,5 +256,9 @@ class CValue {
       return FALSE;
     }
     return $cvterm;
+  }
+
+  public function get_total_count() {
+    return $this->total_count;
   }
 }

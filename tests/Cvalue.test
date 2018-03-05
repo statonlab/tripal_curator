@@ -133,6 +133,30 @@ final class Cvalue_test extends TestCase {
     }
   }
 
+  public function test_defining_by_cvalue_id(){
+    $cval = $this->cvalue;
+
+
+    //put fake cvterm in class
+    $cvterm = tripal_get_cvterm(
+      [
+        'name' => 'Curator Test',
+        'cv_id' => [
+          'name' => 'tripal',
+        ],
+      ]
+    );
+
+    $cval->set_cvalue_search($cvterm->cvterm_id);
+
+    $props = $cval->get_properties();
+
+
+    $this->assertNotNull($props);
+
+
+  }
+
 
   //QUESTION: what happens if this test runs early on?  Other tests will fail.
 
