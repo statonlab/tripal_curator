@@ -85,10 +85,56 @@ function tripal_curator_edit_cvalue_form($form, &$form_state, $type, $value) {
   ];
 
 
-  dpm($properties);
+  //TODO does it make sense to push in choices based on the $type?
+  $action_choices = ['Split properties' => "split", "set cvterm for value" => "set cvterm"];
+
+  $form['action'] = [
+    '#type' => 'select',
+    '#options' => $action_choices,
+  '#ajax' => [
+    'callback' => "tripal_curator_action_callback",
+    'wrapper' => "action_type_wrapper",
+    'effect' => 'fade',
+    'method' => 'replace',
+  ],
+  ];
+
+  $action = null;
+  if (isset($form_state['values']) && isset($form_state['values']['action'])){
+    $action = $form_state['values']['action'];
+  }
+
+
+  $form['action_type_wrapper'] = [
+    '#type' => 'fieldset',
+    '#prefix' => '<div id="action_type_wrapper">',
+    '#suffix' => '</div>'
+  ];
+
+
+  if ($action == "split"){
+    $form['action_type_wrapper']['instructions'] = [
+      '#markup' => '<h3>Splitting Properties</h3>
+<p>You can split the above properties into <strong>multiple properties</strong>.  This is useful for properties that include multiple information values: for example, a treatment property that describes soil, ozone, and temperature treatments.</p>
+<p>To split your properties, you must provide a set of output properties.</p> '];
+
+  }
+
+  if ($action == "set cvterm"){
+    $form['action_type_wrapper']['instructions'] = [
+      '#markup' => '<h3>Setting a Value CVterm</h3>
+<p>You can re-annotate the above properties to utilize a CVterm for the value (cvalue)</p>.
+<p>To proceed, please select a <strong>CVterm</strong> to assign the property values to.</p> '];
+
+
+    //Also, provide checkbox if you want to overwrite the value text
+  }
 
 
   return $form;
+
+
+  ///////
 
   $chado_property->set_cvtermprop_search($type_id);
 
@@ -278,70 +324,8 @@ function tripal_curator_edit_cvalue_form($form, &$form_state, $type, $value) {
   return $form;
 }
 
-function tripal_curator_edit_cvterm_type_form_validate($form, &$form_state) {
-
-  $values = $form_state['values'];
-
-  $selected_target_cvterm = NULL;
-
-  foreach ($values as $value_key => $value) {
-
-    if (preg_match('/term-/', $value_key)) {
-
-      if ($value = "on") {
-        $selected_target_cvterm = str_replace('term-', '', $value_key);
-      }
-    }
-  }
-
-  if (!$selected_target_cvterm) {
-    form_set_error('destination_type', t("You must select a valid destination CVterm. You must press Lookup Term and select a CVterm."));
-  }
-
-  $convert_type = $values['curation_type'];
-
-  if ($convert_type == 'select') {
-
-    if (!isset($values['property_table_select'])) {
-      form_set_error('property_table_select', t("You must select at least one property table if converted selected tables."));
-
-    }
-
-  }
-
-}
 
 
-function tripal_curator_edit_cvterm_type_form_submit($form, &$form_state) {
-  $values = $form_state['values'];
-  $convert_type = $values['curation_type'];
-  $selected_tables = NULL;
-  if ($convert_type == 'select') {
-    $selected_tables = $values['property_table_select'];
-  }
-
-  foreach ($values as $value_key => $value) {
-
-    if (preg_match('/term-/', $value_key)) {
-
-      if ($value = "on") {
-        $selected_target_cvterm = str_replace('term-', '', $value_key);
-      }
-    }
-  }
-
-
-  $source_cvterm = $values['source_cvterm_id'];
-
-  $chado_property = new \tripal_curator\Chado_property();
-
-  $chado_property->set_cvtermprop_search($source_cvterm);
-
-  if ($selected_tables) {
-    $chado_property->specify_tables($selected_tables);
-  }
-
-  $chado_property->remap_property_all($selected_target_cvterm);
-
-
+function tripal_curator_action_callback($form, &$form_state){
+  return $form['action_type_wrapper'];
 }
