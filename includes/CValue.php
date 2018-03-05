@@ -28,8 +28,6 @@ class CValue {
 
     $tables = tripal_curator_get_property_tables_with_cvalues();
 
-    var_dump($tables);
-
     $count_all = 0;
     $properties = [];
 
@@ -47,7 +45,6 @@ class CValue {
       ]);
       $query->condition('value', $text);
       $results = $query->execute()->fetchAll();
-      dpm($results);
       if ($results) {
         $properties[$table] = $results;
         $count_all += count($results);

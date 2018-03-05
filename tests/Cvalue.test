@@ -10,20 +10,101 @@ use \tripal_curator\CValue;
 
 final class Cvalue_test extends TestCase {
 
- public $cvalue = null;
+  public $cvalue = NULL;
+
+  public $cvterm = NULL;
+
+  public $fake_biomaterial_name = "Tripal Curator testing biomaterial";
+
+  public $fake_biomat_id = NULL;
+  public static function setUpBeforeClass() {
 
 
-  public function setUp(){
+    //build fake cvterm
+    $cvterm = tripal_insert_cvterm(
+      [
+        'name' => 'Curator Test',
+        'definition' => 'A test CVterm.  Should be deleted in test.',
+        'cv_name' => 'tripal',
+        'is_relationship' => 0,
+        'db_name' => 'tripal',
+      ]
+    );
+
+    //insert a fake biomaterial
+
+    $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator testing biomaterial", NULL, NULL, NULL, NULL, NULL);
+
+
+
+
+    $query = db_insert('chado.biomaterialprop')
+      ->fields([
+        'biomaterial_id' => $biomaterial_id,
+        "type_id" => $cvterm->cvterm_id,
+        "value" => "Curator Test",
+        'cvalue_id' => $cvterm->cvterm_id,
+      ]);
+    $result = $query->execute();
+
+  }
+
+  public function setUp() {
 
     $cvalue = new CValue;
     $this->cvalue = $cvalue;
 
-  }
+    //put fake cvterm in class
+    $cvterm = tripal_get_cvterm(
+      [
+        'name' => 'Curator Test',
+        'cv_id' => [
+          'name' => 'tripal',
+        ],
+      ]
+    );
 
+    $contact_descrip_id = tripal_get_cvterm([
+      'name' => 'contact_description',
+      'cv_id' => ['name' => 'tripal_contact'],
+    ]);
+    $this->cvterm = $cvterm;
+
+
+    $query = db_select('chado.biomaterial', 't')
+      ->fields('t')
+      ->condition('name', 'Tripal Curator testing biomaterial', '=');
+    $result = $query->execute()->fetchObject();
+
+
+    if (!$result) {
+      print "ERROR: Class set up failed to get biomaterial";
+    }
+
+    $this->fake_biomat_id = $result->biomaterial_id;
+
+  }
 
   public function test_initialize_property() {
     $cval = $this->cvalue;
     $this->assertInstanceOf(Cvalue::class, $cval);
+  }
+
+  public function test_initialize_biomat() {
+
+    $biomat_id = $this->fake_biomat_id;
+
+    $this->assertNotNull($biomat_id);
+
+    $record = ['table' => "biomaterial", 'id' => $biomat_id];
+
+
+    $biomat_prop = chado_get_property($record, [
+      'type_name' => 'Curator Test',
+      //  'cv_name' => 'tripal',
+    ]);
+
+    $this->assertNotNull($biomat_prop);
 
   }
 
@@ -33,17 +114,18 @@ final class Cvalue_test extends TestCase {
    * Tests defining the cvalue
    */
 
-  public function test_defining_by_text(){
+  public function test_defining_by_text() {
 
     $cval = $this->cvalue;
 
-    $cval->set_value_text("Discrete.");
+    //Risky test.  we don't create this ourselves.
+    $cval->set_value_text("Leaf");
 
     $props = $cval->get_properties();
 
     $this->assertNotEmpty($props);
 
-    foreach ($props as $table => $properties){
+    foreach ($props as $table => $properties) {
 
       $this->assertNotNull($table);
       $this->assertNotEmpty($properties);
@@ -51,10 +133,31 @@ final class Cvalue_test extends TestCase {
     }
 
 
-
   }
 
-  public function tearDown() {
+  public static function tearDownAfterClass() {
+    //Delete fake biomaterial
+
+    $values = ['name' => 'Tripal Curator testing biomaterial'];
+
+    chado_delete_record('biomaterial', $values);
+
+
+    //delete fake cvterm
+
+    $cvterm = tripal_get_cvterm(
+      [
+        'name' => 'Curator Test',
+        'cv_id' => [
+          'name' => 'tripal',
+        ],
+      ]
+    );
+
+
+    $values = ['cvterm_id' => $cvterm->cvterm_id];
+    chado_delete_record('cvterm', $values);
+
 
   }
 
