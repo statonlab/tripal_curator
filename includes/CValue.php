@@ -64,6 +64,21 @@ class CValue {
   }
 
 
+  public function reassign_cvalue($cvalue_id) {
+
+    $cvterm = tripal_get_cvterm(
+      [
+        'cvterm_id' => $cvalue_id,
+      ]
+    );
+
+    if (!$cvterm){
+      tripal_set_message("Attempt to cvalue to undefined cvterm ID.", TRIPAL_ERROR);
+      return FALSE;
+    }
+
+  }
+
   public function get_properties() {
 
     return $this->properties_by_table;
