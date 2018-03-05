@@ -27,6 +27,12 @@ final class Cvalue_test extends TestCase {
 
   }
 
+
+  /**
+   * @group failing
+   * Tests defining the cvalue
+   */
+
   public function test_defining_by_text(){
 
     $cval = $this->cvalue;
@@ -36,8 +42,6 @@ final class Cvalue_test extends TestCase {
     $props = $cval->get_properties();
 
     $this->assertNotEmpty($props);
-
-    var_dump($props);
 
     foreach ($props as $table => $properties){
 

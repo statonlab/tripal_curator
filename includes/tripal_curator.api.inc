@@ -34,11 +34,11 @@ $tables = tripal_curator_get_property_tables();
 $output_tables = [];
 
 foreach ($tables as $table){
-  if (db_field_exists($table, 'cvalue_id')){
+
+  if (db_field_exists(tripal_curator_chadofy($table), 'cvalue_id')){
     $output_tables[] = $table;
   }
 }
-
 
   return $output_tables;
 
