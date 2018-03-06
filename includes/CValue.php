@@ -46,6 +46,7 @@ class CValue {
       $query->condition('value', $text);
       $results = $query->execute()->fetchAll();
       if ($results) {
+
         $properties[$table] = $results;
         $count_all += count($results);
 
@@ -69,22 +70,29 @@ class CValue {
     $value = NULL;
     $cvterm = $this->_get_cvterm_for_cvalue();
 
-    if (isset($cvterm->name)) {
+    $cvterm_id = $cvterm->cvterm_id;
 
+    if (!$cvterm_id){
+      throw new \Exception("No Cvterm_id to set the property value to!");
+    }
+
+    if (isset($cvterm->name)) {
       $value = $cvterm->name;
     }
 
     if (!$this->properties_by_table) {
-      tripal_set_message("Attempting to set the property value of NULL properties.", ERROR);
+      throw new \Exception("Attempting to set the property value of NULL properties.");
       return FALSE;
     }
 
     foreach ($this->properties_by_table as $table => $properties) {
+
       $query = db_update(tripal_curator_chadofy($table));
       $query->fields([
         'value' => $value,
       ]);
-      $query->condition('cvalue_id', $cvterm->id);
+      $query->condition('cvalue_id', $cvterm->cvterm_id, '=');
+
       $results = $query->execute();
 
       if (!$results) {
@@ -92,6 +100,10 @@ class CValue {
         return FALSE;
       }
     }
+
+
+    $this->update_properties();
+
     return $value;
   }
 
@@ -156,14 +168,11 @@ class CValue {
       foreach ($properties as $property) {
         $record_ids[] = $property->$record_id_handle;
       }
-
-
       $query = db_update(tripal_curator_chadofy($table));
       $query->fields([
         'cvalue_id' => $cvalue_id,
       ]);
       $query->condition($record_id_handle, $record_ids, 'IN');
-
       $results = $query->execute();
 
       if (!$results) {
@@ -171,7 +180,6 @@ class CValue {
         return FALSE;
       }
     }
-
     //Now update the properties in this object
 
     $this->update_properties();
@@ -229,7 +237,6 @@ class CValue {
 
     $this->properties_by_table = $new_props;
     $this->total_count = $count_all;
-
 
     return $this->properties_by_table;
   }

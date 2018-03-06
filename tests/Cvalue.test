@@ -24,8 +24,43 @@ final class Cvalue_test extends TestCase {
    *  - biomaterial
    *  - property for biomaterial with cvalue
    */
-  public static function setUpBeforeClass() {
-    //build fake cvterms
+//  public static function setUpBeforeClass() {
+//    //build fake cvterms
+//    $cvterm = tripal_insert_cvterm(
+//      [
+//        'name' => 'Curator Test',
+//        'definition' => 'A test CVterm.  Should be deleted in test.',
+//        'cv_name' => 'tripal',
+//        'is_relationship' => 0,
+//        'db_name' => 'tripal',
+//      ]
+//    );
+//
+//    $cvterm = tripal_insert_cvterm(
+//      [
+//        'name' => 'Curator Test TARGET',
+//        'definition' => 'The target test cvterm.  Should be deleted in test.',
+//        'cv_name' => 'tripal',
+//        'is_relationship' => 0,
+//        'db_name' => 'tripal',
+//      ]
+//    );
+//
+//    //insert a fake biomaterial
+//    $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator testing biomaterial", NULL, NULL, NULL, NULL, NULL);
+//
+//    $query = db_insert('chado.biomaterialprop')
+//      ->fields([
+//        'biomaterial_id' => $biomaterial_id,
+//        "type_id" => $cvterm->cvterm_id,
+//        "value" => "Curator Test",
+//        'cvalue_id' => $cvterm->cvterm_id,
+//      ]);
+//    $result = $query->execute();
+//  }
+
+  public function setUp() {
+
     $cvterm = tripal_insert_cvterm(
       [
         'name' => 'Curator Test',
@@ -36,15 +71,7 @@ final class Cvalue_test extends TestCase {
       ]
     );
 
-    $cvterm = tripal_insert_cvterm(
-      [
-        'name' => 'Curator Test TARGET',
-        'definition' => 'The target test cvterm.  Should be deleted in test.',
-        'cv_name' => 'tripal',
-        'is_relationship' => 0,
-        'db_name' => 'tripal',
-      ]
-    );
+    $this->cvterm = $cvterm;
 
     //insert a fake biomaterial
     $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator testing biomaterial", NULL, NULL, NULL, NULL, NULL);
@@ -57,28 +84,22 @@ final class Cvalue_test extends TestCase {
         'cvalue_id' => $cvterm->cvterm_id,
       ]);
     $result = $query->execute();
-  }
 
-  public function setUp() {
 
-    $cvalue = new CValue;
-    $this->cvalue = $cvalue;
 
-    //put fake cvterm in class
-    $cvterm = tripal_get_cvterm(
+
+    $cvterm = tripal_insert_cvterm(
       [
-        'name' => 'Curator Test',
-        'cv_id' => [
-          'name' => 'tripal',
-        ],
+        'name' => 'Curator Test TARGET',
+        'definition' => 'The target test cvterm.  Should be deleted in test.',
+        'cv_name' => 'tripal',
+        'is_relationship' => 0,
+        'db_name' => 'tripal',
       ]
     );
 
-    $contact_descrip_id = tripal_get_cvterm([
-      'name' => 'contact_description',
-      'cv_id' => ['name' => 'tripal_contact'],
-    ]);
-    $this->cvterm = $cvterm;
+    $cvalue = new CValue;
+    $this->cvalue = $cvalue;
 
 
     $query = db_select('chado.biomaterial', 't')
@@ -107,7 +128,6 @@ final class Cvalue_test extends TestCase {
 
     $record = ['table' => "biomaterial", 'id' => $biomat_id];
 
-
     $query = db_select('chado.biomaterialprop', 't')
       ->fields('t')
       ->condition('biomaterial_id', $biomat_id, '=');
@@ -131,11 +151,11 @@ final class Cvalue_test extends TestCase {
       $this->assertNotNull($table);
       $this->assertNotEmpty($properties);
     }
+
   }
 
   public function test_defining_by_cvalue_id(){
     $cval = $this->cvalue;
-
 
     //put fake cvterm in class
     $cvterm = tripal_get_cvterm(
@@ -151,20 +171,20 @@ final class Cvalue_test extends TestCase {
 
     $props = $cval->get_properties();
 
-
-    $this->assertNotNull($props);
+    $this->assertNotEmpty($props);
 
 
   }
 
-
-  //QUESTION: what happens if this test runs early on?  Other tests will fail.
+  /**
+   * @group failing
+   * Tests the api edit form
+   */
 
   public function test_assign_cvalue_id() {
-
     $cval = $this->cvalue;
-
     $cval->set_value_text("Curator Test");
+
 
     $cvterm = tripal_get_cvterm(
       [
@@ -175,7 +195,6 @@ final class Cvalue_test extends TestCase {
       ]
     );
 
-
     $cval->reassign_cvalue($cvterm->cvterm_id);
 
     $props = $cval->get_properties();
@@ -184,21 +203,9 @@ final class Cvalue_test extends TestCase {
     $test_prop = array_pop($properties);
 
 
-
     $this->assertObjectHasAttribute('cvalue_id', $test_prop);
     $this->assertNotNull($test_prop->cvalue_id);
     $this->assertEquals($cvterm->cvterm_id, $test_prop->cvalue_id, "new cvalue_id does not match assigned id");
-
-    $cval->set_value_to_cvalue();
-    $props = $cval->get_properties();
-
-
-    $properties = array_pop($props);
-    $test_prop = array_pop($properties);
-
-    //This is bizarre.  It should be curator test target, but its curator test.  we never set this cvalueid!
-
-   $this->assertEquals("Curator Test TARGET", $test_prop->value);
 
     $cvterm = tripal_get_cvterm(
       [
@@ -211,12 +218,48 @@ final class Cvalue_test extends TestCase {
 
     $cval->reassign_cvalue($cvterm->cvterm_id);
     $cval->set_value_to_cvalue();
-    $props = $cval->get_properties();
-
   }
 
+public function test_assign_value_to_cvalues_name(){
+  $cval = $this->cvalue;
+  $cval->set_value_text("Curator Test");
 
-  public static function tearDownAfterClass() {
+
+  $cvterm = tripal_get_cvterm(
+    [
+      'name' => 'Curator Test TARGET',
+      'cv_id' => [
+        'name' => 'tripal',
+      ],
+    ]
+  );
+
+  $cval->reassign_cvalue($cvterm->cvterm_id);
+  $cval->set_value_to_cvalue();
+
+  $props = $cval->get_properties();
+
+
+  $properties = array_pop($props);
+  $test_prop = array_pop($properties);
+
+  $this->assertEquals("Curator Test TARGET", $test_prop->value);
+
+  $cvterm = tripal_get_cvterm(
+    [
+      'name' => 'Curator Test',
+      'cv_id' => [
+        'name' => 'tripal',
+      ],
+    ]
+  );
+
+  $cval->reassign_cvalue($cvterm->cvterm_id);
+  $cval->set_value_to_cvalue();
+}
+
+
+  public function tearDown() {
     //Delete fake biomaterial
     $values = ['name' => 'Tripal Curator testing biomaterial'];
     chado_delete_record('biomaterial', $values);
