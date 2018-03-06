@@ -109,6 +109,10 @@ class CV {
     return $this->prop_tables;
   }
 
+  /**
+   * Return the CV name.
+   * @return mixed
+   */
   public function get_cv_name() {
     return $this->cv_name;
   }

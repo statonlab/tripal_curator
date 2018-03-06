@@ -21,7 +21,6 @@ class Cvterm {
 
   public function set_id($id){
 
-
     $cvterm = tripal_get_cvterm(array(
       'cvterm_id' => $id,
     ));
@@ -34,6 +33,7 @@ class Cvterm {
     $this->cvterm_id = $cvterm->cvterm_id;
 
   }
+
 
 
   /**

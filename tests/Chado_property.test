@@ -93,13 +93,38 @@ final class Chado_property_test extends TestCase {
 
   }
 
-  public function testremap_property_all(){
+  public function testremap_property_all() {
     $this->property->remap_property_all($this->cvterm_test->cvterm_id);
 
     $this->assertEquals($this->cvterm_test->cvterm_id, $this->property->get_type_id());
     $this->assertNotEmpty($this->property->get_props());
 
+  }
 
+
+  //define a new test group here
+
+  public function test_build_blank_cvalues_finds_properties() {
+    $temp_property = new Chado_property();
+
+    $result = $temp_property->build_blank_cvalues();
+
+    if (!$result) {
+      print("\n\nNo prop tables with cvalue_id in test environment, skipping test_build_blank_cvalues_finds_properties\n");
+      return;
+      //TODO: Instead, we could check if a table has the cvalue_id column, and insert a new test property with cvalue_id = null
+    }
+
+    $target_prop_tables = $temp_property->get_props();
+    $this->assertNotEmpty($target_prop_tables, "Build blank cvalues did not find any properties with cvalue_ids but no cvalues.");
+
+    $target_props = array_pop($target_prop_tables);
+    $this->assertNotEmpty($target_props, "Build blank cvalues returned a table without no properties.");
+
+    $prop = array_pop($target_props);
+
+    $this->assertObjectHasAttribute("cvalue_id", $prop, "Property retrieved from build_blank_cvalues lacks cvalue_id key.");
+    $this->assertNull($prop->cvalue_id, "Property retrieved from build_blank_cvalues has non-null cvalue_id");
 
   }
 
@@ -109,7 +134,6 @@ final class Chado_property_test extends TestCase {
 
     $cvterm_existing = $this->cvterm_existing;
     $cvterm_test = $this->cvterm_test;
-
 
 
     //do another sweep for properties that we acciddentally changed to the test prop.
