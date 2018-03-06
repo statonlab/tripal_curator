@@ -74,7 +74,9 @@ final class Cvalue_test extends TestCase {
     $this->cvterm = $cvterm;
 
     //insert a fake biomaterial
-    $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator testing biomaterial", NULL, NULL, NULL, NULL, NULL);
+    $biomaterial_id = tripal_curator_create_biomaterial("Tripal Curator testing biomaterial", NULL, NULL, NULL, NULL, NULL);
+
+
 
     $query = db_insert('chado.biomaterialprop')
       ->fields([
