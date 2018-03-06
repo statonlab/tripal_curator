@@ -6,6 +6,7 @@ include_once ('includes/tripal_curator.api.inc');
 include_once ('includes/Chado_property.php');
 include_once ('includes/Cvterm.php');
 include_once ('includes/CV.php');
+include_once ('includes/CValue.php');
 
 /**
  * implement hook menu
@@ -55,13 +56,15 @@ function tripal_curator_menu() {
     ];
 
 
-  //For cvalues
-  $items[$admin_url_base . "/cvalue"] = [
-    'title' => 'Cvalue ID',
+  //For modifying cvalues
+
+  $items[$admin_url_base . "/edit_cvalue/%/%"] = [
+    'title' => 'Edit Cvalue',
     'access arguments' => ['Tripal Curator'],
     'page callback' => 'drupal_get_form',
-    'page arguments' => ['tripal_curator_assign_cvalue_form'],
-    'file' => 'includes/tripal_curator_assign_cvalue.form.inc',
+    'page arguments' => ['tripal_curator_edit_cvalue_form', 5, 6],
+    'file' => 'includes/tripal_curator_edit_cvalue_type.form.inc',
+
     'file_path' => drupal_get_path('module', 'tripal_curator'),
   ];
 

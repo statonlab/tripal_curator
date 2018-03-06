@@ -22,6 +22,28 @@ function tripal_curator_get_property_tables() {
   return $tables;
 }
 
+/**
+ * Get all Chado property tables that have the cvalue_id column.
+ * Because this isnt in the official Chado release as of this writing, not all property tables will have the column.
+ *
+ * @return array
+ */
+function tripal_curator_get_property_tables_with_cvalues(){
+$tables = tripal_curator_get_property_tables();
+
+$output_tables = [];
+
+foreach ($tables as $table){
+
+  if (db_field_exists(tripal_curator_chadofy($table), 'cvalue_id')){
+    $output_tables[] = $table;
+  }
+}
+
+  return $output_tables;
+
+}
+
 
 function tripal_curator_fetch_props_for_prop_table($table) {
   //check that this is a prop table
