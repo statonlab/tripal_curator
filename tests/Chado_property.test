@@ -46,6 +46,20 @@ final class Chado_property_test extends TestCase {
     $property->set_cvtermprop_search($cvprop_term->cvterm_id);
     $this->property = $property;
 
+
+    //create a biomaterial that will be not have a cvalue
+
+    //insert a fake biomaterial
+    $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator blank cvalue", NULL, NULL, NULL, NULL, NULL);
+
+    $query = db_insert('chado.biomaterialprop')
+      ->fields([
+        'biomaterial_id' => $biomaterial_id,
+        "type_id" => $cvterm->cvterm_id,
+        "value" => "No cvalue!",
+        'cvalue_id' => NULL,
+      ]);
+    $result = $query->execute();
   }
 
 
@@ -102,8 +116,6 @@ final class Chado_property_test extends TestCase {
   }
 
 
-  //define a new test group here
-
   public function test_build_blank_cvalues_finds_properties() {
     $temp_property = new Chado_property();
 
@@ -131,6 +143,8 @@ final class Chado_property_test extends TestCase {
 
   protected function tearDown() {
 
+    $values = ['name' => 'Tripal Curator blank cvalue'];
+    chado_delete_record('biomaterial', $values);
 
     $cvterm_existing = $this->cvterm_existing;
     $cvterm_test = $this->cvterm_test;
