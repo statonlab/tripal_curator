@@ -30,6 +30,15 @@ function tripal_curator_edit_cvalue_form($form, &$form_state, $type, $value) {
     '#value' => $value,
   ];
 
+  $valid_options = ["text", "cvalue_id"];
+
+  if (!in_array($type, $valid_options)){
+
+    $form['rejected'] = tripal_curator_cvalue_form_rejection_builder();
+
+    return $form;
+  }
+
   if ($type == "text") {
     //not necessary with one source value?
     //    $form['source_text'] = [
@@ -47,14 +56,35 @@ function tripal_curator_edit_cvalue_form($form, &$form_state, $type, $value) {
 
   if ($type == "cvalue_id") {
 
+    $value = (int) $value;
+
     //    $form['source_cvalue_id'] = [
     //      '#type' => 'value',
     //      '#value' => $value,
     //    ];
 
+    if (!$value ){
+
+      $form['rejected'] = tripal_curator_cvalue_form_rejection_builder();
+return $form;
+
+    }
+
     $cvterm = tripal_get_cvterm([
       'cvterm_id' => $value,
     ]);
+
+    if (!$cvterm){
+
+      $form['rejected'] = tripal_curator_cvalue_form_rejection_builder();
+
+      return $form;
+
+    }
+
+    $cval->set_cvalue_search($value);
+    $properties = $cval->get_properties();
+    $total_count = $cval->get_total_count();
 
     $cvalue_ids[$value] = $value;//We do this because below, we'll list the cvalues associated with these properties, without having to worry about if we are doing free-text or cvalue.
 
@@ -67,7 +97,14 @@ function tripal_curator_edit_cvalue_form($form, &$form_state, $type, $value) {
       $cvterm_definition = $cvterm->definition;
     }
 
-    $cval->set_cvalue_search($value);
+    if ($total_count === 0 ){
+
+      $form['rejected'] = ['#markup' =>
+        "There are no properties utilizing this cvterm for the value.  " . 'Please return to <a href=' . "/admin/tripal/extension/tripal_curator/property_values" . '>The curator cvalue select form.</a>'];
+
+      return $form;
+    }
+
 
     $instruction_markup = "<p><strong>Property Selection Type</strong>: Cvalue</p>
                             The properties listed below all share the same CVterm value (Cvalue).";
@@ -77,12 +114,9 @@ function tripal_curator_edit_cvalue_form($form, &$form_state, $type, $value) {
 
   }
 
-
-  $properties = $cval->get_properties();
-  $total_count = $cval->get_total_count();
-
   $instruction_markup .= '<p><b>Total Property Records: </b>' . $total_count . '</p>';
   $instruction_markup .= '<p><b>Property Tables included: </b></p><ul>';
+
 
   $type_ids = [];
 
@@ -431,4 +465,12 @@ function tripal_curator_edit_cvalue_provide_property_table($properties) {
 
   return ($table);
 
+}
+
+
+function tripal_curator_cvalue_form_rejection_builder(){
+  $rejection = [
+    '#markup' => 'Something went wrong with your request!  Please return to <a href=' . "/admin/tripal/extension/tripal_curator/property_values" . '>The curator cvalue select form.</a>'
+  ];
+  return $rejection;
 }

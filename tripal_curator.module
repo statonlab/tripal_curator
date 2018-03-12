@@ -19,6 +19,12 @@ function tripal_curator_menu() {
     'title' => 'Tripal Curator',
     'description' => t('Tripal Curator'),
     'access arguments' => [' Tripal Curator'],
+  ];
+
+  $items[$admin_url_base . "/properties"] = [
+    'title' => 'Tripal Curator Properties',
+    'description' => t('Tripal Curator'),
+    'access arguments' => [' Tripal Curator'],
     'page callback' => 'drupal_get_form',
     'page arguments' => ['tripal_curator_form'],
     'file' => 'includes/tripal_curator.form.inc',
@@ -35,6 +41,17 @@ function tripal_curator_menu() {
     'file' => 'includes/tripal_curator_cv_usage.form.inc',
     'file_path' => drupal_get_path('module', 'tripal_curator'),
   ];
+
+  $items[$admin_url_base . "/property_values"] = [
+    'title' => 'Property values',
+    'description' => t('View and edit property value text and cvterms.'),
+    'access arguments' => ['Tripal Curator'],
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['tripal_curator_assign_cvalue_form'],
+    'file' => 'includes/tripal_curator_assign_cvalue.form.inc',
+    'file_path' => drupal_get_path('module', 'tripal_curator'),
+  ];
+
   //View CVterms
   $items[$admin_url_base . "/CV_usage/%"] = [
     'title' => 'Properties in CV',
