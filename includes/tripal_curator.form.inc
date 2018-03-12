@@ -142,7 +142,7 @@ function tripal_curator_form($form, &$form_state) {
       else {
 
 
-        $link = l("Click to reassign properties with the selected CVterm for their type.  The below properties will be effected.", "/admin/tripal/extensions/tripal_curator/edit_type_id/" . $selected_term->cvterm_id);
+        $link = l("Click to reassign properties with the selected CVterm for their type.  The below properties will be effected.", "/admin/tripal/extension/tripal_curator/edit_type_id/" . $selected_term->cvterm_id);
 
         $markup .= "<p>{$link}</p>";
       $rows = [];
@@ -162,7 +162,7 @@ function tripal_curator_form($form, &$form_state) {
       }
       else {
 
-        $link = l("Click to remap or split properties with the selectd CVterm value.  The below properties will be effected.", "/admin/tripal/extensions/tripal_curator/edit_cvalue/cvalue_id/" . $selected_term->cvterm_id);
+        $link = l("Click to remap or split properties with the selectd CVterm value.  The below properties will be effected.", "/admin/tripal/extension/tripal_curator/edit_cvalue/cvalue_id/" . $selected_term->cvterm_id);
 
         $markup .= "<p>{$link}</p>";
 
