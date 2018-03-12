@@ -21,6 +21,14 @@ function tripal_curator_form($form, &$form_state) {
   ];
 
 
+  $form['prop_or_value'] = [
+    '#type' => 'radios',
+    '#options' => ['Property', 'Value'],
+    '#title' => "Property or value",
+    '#description' => "You can look up properties or property values."
+  ];
+
+
   $form['term_match'] = [
     '#type' => 'fieldset',
     '#collapsible' => FALSE,
