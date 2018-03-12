@@ -21,14 +21,6 @@ function tripal_curator_form($form, &$form_state) {
   ];
 
 
-  $form['prop_or_value'] = [
-    '#type' => 'radios',
-    '#options' => ['Property', 'Value'],
-    '#title' => "Property or value",
-    '#description' => "You can look up properties or property values."
-  ];
-
-
   $form['term_match'] = [
     '#type' => 'fieldset',
     '#collapsible' => FALSE,
@@ -70,16 +62,15 @@ function tripal_curator_form($form, &$form_state) {
   }
 
   if ($term_name) {
-    $submit_disabled = TRUE;
-    $form['term_match']['terms_list'] = array(
+    $form['term_match']['terms_list'] = [
       '#type' => 'fieldset',
       '#title' => t('Matching Terms'),
-      '#description' => t('Please select a term.  You will be able to modify properties with this term type or value.')
-    );
-    $match = array(
+      '#description' => t('Please select a term.  You will be able to modify properties with this term type or value.'),
+    ];
+    $match = [
       'name' => $term_name,
-    );
-    $terms = chado_generate_var('cvterm', $match, array('return_array' => TRUE));
+    ];
+    $terms = chado_generate_var('cvterm', $match, ['return_array' => TRUE]);
     $terms = chado_expand_var($terms, 'field', 'cvterm.definition');
     $num_terms = 0;
     $selected_term = '';
@@ -90,74 +81,104 @@ function tripal_curator_form($form, &$form_state) {
       // Save the user a click by setting the default value as 1 if there's
       // only one matching term.
       $default = FALSE;
-      $attrs = array();
+      $attrs = [];
       if ($num_terms == 0 and count($terms) == 1) {
         $default = TRUE;
-        $attrs = array('checked' => 'checked');
+        $attrs = ['checked' => 'checked'];
+        $selected_term = $term;
       }
       $term_element_name = 'term-' . $term->cvterm_id;
-      $form['term_match']['terms_list'][$term_element_name] = array(
+      $form['term_match']['terms_list'][$term_element_name] = [
         '#type' => 'radio',
-        '#title' =>  $term->name,
+        '#title' => $term->name,
         '#default_value' => $default,
         '#attributes' => $attrs,
         '#description' => '<b>Vocabulary:</b> ' . $term->cv_id->name . ' (' . $term->dbxref_id->db_id->name . ') ' . $term->cv_id->definition .
           '<br><b>Term: </b> ' . $term->dbxref_id->db_id->name . ':' . $term->dbxref_id->accession . '.  ' .
           '<br><b>Definition:</b>  ' . $term->definition,
-        '#ajax' => array(
+        '#ajax' => [
           'callback' => "tripal_curator_get_term_lookup_form_ajax_callback",
           'wrapper' => "curator-vocab-select-form",
           'effect' => 'fade',
-          'method' => 'replace'
-        ),
-      );
+          'method' => 'replace',
+        ],
+      ];
 
-      if (array_key_exists('values', $form_state) and array_key_exists($term_element_name, $form_state['values']) and
-        $form_state['values'][$term_element_name] == 1) {
+      if (array_key_exists('input', $form_state) and array_key_exists($term_element_name, $form_state['input']) and
+        $form_state['input'][$term_element_name] == 'on') {
         $selected_term = $term;
       }
       $num_terms++;
     }
 
-
     if ($num_terms == 0) {
-      $form['term_match']['terms_list']['none'] = array(
+      $form['term_match']['terms_list']['none'] = [
         '#type' => 'item',
-        '#markup' => '<i>' . t('There is no term that matches the entered text.') . '</i>'
-      );
+        '#markup' => '<i>' . t('There is no term that matches the entered text.') . '</i>',
+      ];
     }
 
-    if ($selected_term){
+    if ($selected_term) {
 
-     $property_converter =  new \tripal_curator\Chado_property();
+      $props_by_type = new \tripal_curator\Chado_property();
+      $props_by_value = new\tripal_curator\CValue();
 
-     $property_converter->set_cvtermprop_search($selected_term->cvterm_id);
+      $props_by_type->set_cvtermprop_search($selected_term->cvterm_id);
 
-      $form['chosen_entities'] = [
-        '#markup' => ''
+      $props_by_value->set_cvalue_search($selected_term->cvterm_id);
+
+      $properties_matching_type = $props_by_type->get_props();
+      $properties_matching_type_count = $props_by_type->get_total();
+
+      $properties_matching_cvalue = $props_by_value->get_properties();
+      $properties_matching_cvalue_count = $props_by_value->get_total_count();
+
+      $markup = "<h3>Properties with this type<h3/>";
+
+      if ($properties_matching_type_count === 0) {
+
+        $markup .= "<p>There are no properties utilizing this type ID</p>";
+      }
+      else {
+
+
+        $link = l("Click to reassign properties with the selected CVterm for their type.  The below properties will be effected.", "/admin/tripal/extensions/tripal_curator/edit_type_id/" . $selected_term->cvterm_id);
+
+        $markup .= "<p>{$link}</p>";
+      $rows = [];
+      $headers = ["table", "count"];
+        foreach ($properties_matching_type as $prop_table => $props){
+          $rows[] = [$prop_table, count($props)];
+        }
+
+        $markup .= theme("table", ["rows" => $rows, "header" => $headers]);
+
+      }
+
+      $markup .= "<h3>Properties with this value cvterm<h3/>";
+
+      if ($properties_matching_cvalue_count === 0) {
+        $markup .= "<p>There are no properties utilizing this value cvterm ID</p>";
+      }
+      else {
+
+        $link = l("Click to remap or split properties with the selectd CVterm value.  The below properties will be effected.", "/admin/tripal/extensions/tripal_curator/edit_cvalue/cvalue_id/" . $selected_term->cvterm_id);
+
+        $markup .= "<p>{$link}</p>";
+
+        $rows = [];
+        $headers = ["table", "count"];
+        foreach ($properties_matching_cvalue as $prop_table => $props){
+          $rows[] = [$prop_table, count($props)];
+        }
+        $markup .= theme("table", ["rows" => $rows, "header" => $headers]);
+      }
+
+      $form['term_match']['chosen_entities'] = [
+        '#markup' => $markup,
       ];
-
-      $form['choose_remap'] = [
-        '#type' => 'fieldset',
-        '#collapsible' => FALSE,
-        '#collapsed' => FALSE,
-        '#prefix' => '<div id = "curator-choose-field">',
-        '#suffix' => '</div>',
-      ];
-
-      $markup = '<h3>Remapping Properties</h3>  <p>This section will allow you to remap your Chado properties.</p>';
-      $form['choose_remap']['instructions']= [
-        '#markup' => $markup
-      ];
-
-
-
     }
-
-
   }
-
-
 
 
   return $form;

@@ -90,7 +90,6 @@ function tripal_curator_assign_cvalue_form($form, &$form_state) {
         'effect' => 'fade',
       ],
     ];
-    //TODO:  This doesnt quite work
     $form['div1']['search_buttons'] = [
       '#title' => t('Search'),
       '#type' => 'button',
@@ -145,7 +144,84 @@ function tripal_curator_assign_cvalue_form($form, &$form_state) {
   }
 
 
-  return ($form);
+  if ($select_type === 'existing' ) {
+$description = "";
+
+    $form['div1']['search_cvterm'] = [
+      '#title' => t('CVterm Lookup'),
+      '#description' => $description,
+      '#type' => 'textfield',
+      '#autocomplete_path' => "admin/tripal/storage/chado/auto_name/cvterm/",
+    ];
+
+
+    $form['div1']['select_cvterm'] = [
+      '#type' => 'button',
+      '#value' => t('Lookup Term'),
+      '#name' => 'select_cvterm',
+      '#validate' => [],
+      '#limit_validation_errors' => [],
+      '#ajax' => [
+        'callback' => "tripal_curator_cvalue_cvterm_callback",
+        'wrapper' => "tripal_curator_search_callback",
+        'effect' => 'fade',
+        'method' => 'replace',
+      ],
+    ];
+
+
+    $term_name = '';
+
+    if (array_key_exists('input', $form_state) and array_key_exists('search_cvterm', $form_state['input'])) {
+      $term_name = array_key_exists('input', $form_state) ? $form_state['input']['search_cvterm'] : '';
+    }
+
+
+    if ($term_name) {
+      $submit_disabled = TRUE;
+      $form['destination_type']['terms_list'] = [
+        '#type' => 'fieldset',
+        '#title' => t('Matching Terms'),
+        '#description' => t('Please select a destination term.  All properties above will be converted to this property type.')
+      ];
+      $match = [
+        'name' => $term_name,
+      ];
+      $terms = chado_generate_var('cvterm', $match, ['return_array' => TRUE]);
+      $terms = chado_expand_var($terms, 'field', 'cvterm.definition');
+      $num_terms = 0;
+      $selected_term = '';
+
+      // Let the user select from any matching terms. Sometimes there may be
+      // more than one that match.
+      foreach ($terms as $term) {
+        // Save the user a click by setting the default value as 1 if there's
+        // only one matching term.
+        $default = FALSE;
+        $attrs = [];
+        if ($num_terms == 0 and count($terms) == 1) {
+          $default = TRUE;
+          $attrs = ['checked' => 'checked'];
+        }
+        $term_element_name = 'term-' . $term->cvterm_id;
+        $form['destination_type']['terms_list'][$term_element_name] = [
+          '#type' => 'radio',
+          '#title' => $term->name,
+          '#default_value' => $default,
+          '#attributes' => $attrs,
+          '#description' => '<b>Vocabulary:</b> ' . $term->cv_id->name . ' (' . $term->dbxref_id->db_id->name . ') ' . $term->cv_id->definition .
+            '<br><b>Term: </b> ' . $term->dbxref_id->db_id->name . ':' . $term->dbxref_id->accession . '.  ' .
+            '<br><b>Definition:</b>  ' . $term->definition,
+        ];
+
+        $num_terms++;
+      }
+    }
+
+  }
+
+
+    return ($form);
 
   //Step two: Determine Cvalue
 
@@ -182,87 +258,6 @@ function tripal_curator_build_selection_instructions($type) {
   }
 
   return $form;
-
-}
-
-
-/**
- * Just copy pasted right now
- *
- */
-function cvterm_value_lookup(){
-
-
-  $form['destination_type']['search_cvterm'] = [
-    '#title' => t('CVterm Lookup'),
-    '#description' => $description,
-    '#type' => 'textfield',
-    '#autocomplete_path' => "admin/tripal/storage/chado/auto_name/cvterm/",
-  ];
-
-
-  $form['destination_type']['select_cvterm'] = [
-    '#type' => 'button',
-    '#value' => t('Lookup Term'),
-    '#name' => 'select_cvterm',
-    '#validate' => [],
-    '#limit_validation_errors' => [],
-    '#ajax' => [
-      'callback' => "tripal_curator_destination_property_callback",
-      'wrapper' => "curator-vocab-select-form",
-      'effect' => 'fade',
-      'method' => 'replace',
-    ],
-  ];
-
-
-  $term_name = '';
-
-  if (array_key_exists('input', $form_state) and array_key_exists('search_cvterm', $form_state['input'])) {
-    $term_name = array_key_exists('input', $form_state) ? $form_state['input']['search_cvterm'] : '';
-  }
-
-
-  if ($term_name) {
-    $submit_disabled = TRUE;
-    $form['destination_type']['terms_list'] = [
-      '#type' => 'fieldset',
-      '#title' => t('Matching Terms'),
-      '#description' => t('Please select a destination term.  All properties above will be converted to this property type.')
-    ];
-    $match = [
-      'name' => $term_name,
-    ];
-    $terms = chado_generate_var('cvterm', $match, ['return_array' => TRUE]);
-    $terms = chado_expand_var($terms, 'field', 'cvterm.definition');
-    $num_terms = 0;
-    $selected_term = '';
-
-    // Let the user select from any matching terms. Sometimes there may be
-    // more than one that match.
-    foreach ($terms as $term) {
-      // Save the user a click by setting the default value as 1 if there's
-      // only one matching term.
-      $default = FALSE;
-      $attrs = [];
-      if ($num_terms == 0 and count($terms) == 1) {
-        $default = TRUE;
-        $attrs = ['checked' => 'checked'];
-      }
-      $term_element_name = 'term-' . $term->cvterm_id;
-      $form['destination_type']['terms_list'][$term_element_name] = [
-        '#type' => 'radio',
-        '#title' => $term->name,
-        '#default_value' => $default,
-        '#attributes' => $attrs,
-        '#description' => '<b>Vocabulary:</b> ' . $term->cv_id->name . ' (' . $term->dbxref_id->db_id->name . ') ' . $term->cv_id->definition .
-          '<br><b>Term: </b> ' . $term->dbxref_id->db_id->name . ':' . $term->dbxref_id->accession . '.  ' .
-          '<br><b>Definition:</b>  ' . $term->definition,
-      ];
-
-      $num_terms++;
-    }
-  }
 
 }
 
