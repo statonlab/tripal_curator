@@ -137,7 +137,7 @@ function tripal_curator_form($form, &$form_state) {
         '#suffix' => '</div>',
       ];
 
-      $markup = '<h3>Remapping Properties</h3>  <p>This section will allow you to remap your Chado properties.  All pr</p>';
+      $markup = '<h3>Remapping Properties</h3>  <p>This section will allow you to remap your Chado properties.</p>';
       $form['choose_remap']['instructions']= [
         '#markup' => $markup
       ];
