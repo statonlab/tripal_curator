@@ -18,5 +18,5 @@ before_script:
 script:
   - docker run -it -d --rm --name tripal -v "$(pwd)":/modules/custom/tripal_curator statonlab/tripal3
   - sleep 30 #We pause here so drush won't fail
-  - docker exec -it tripal drush pm-enable -y tripal_curator tripal_analysis_expression
+  - docker exec -it tripal drush pm-enable -y tripal_curator tripal_biomaterial
   - docker exec -it tripal bash -c 'cd /modules/custom/tripal_curator/ &&composer install && DRUPAL_ROOT="/var/www/html" ./vendor/bin/phpunit'
