@@ -85,6 +85,9 @@ function tripal_curator_menu() {
     'file_path' => drupal_get_path('module', 'tripal_curator'),
   ];
 
+  dpm($items);
+  var_dump($items);
+
   return $items;
 
 }

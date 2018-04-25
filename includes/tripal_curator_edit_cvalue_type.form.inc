@@ -26,7 +26,7 @@ function tripal_curator_edit_cvalue_form($form, &$form_state, $type, $value) {
   $instruction_markup = NULL;
 
   $form['source_value'] = [
-    '#type' => 'value',
+    '#type' => $type,
     '#value' => $value,
   ];
 
@@ -64,10 +64,9 @@ function tripal_curator_edit_cvalue_form($form, &$form_state, $type, $value) {
     //    ];
 
     if (!$value ){
-
       $form['rejected'] = tripal_curator_cvalue_form_rejection_builder();
-return $form;
 
+      return $form;
     }
 
     $cvterm = tripal_get_cvterm([
@@ -75,11 +74,9 @@ return $form;
     ]);
 
     if (!$cvterm){
-
       $form['rejected'] = tripal_curator_cvalue_form_rejection_builder();
 
       return $form;
-
     }
 
     $cval->set_cvalue_search($value);
@@ -109,10 +106,13 @@ return $form;
     $instruction_markup = "<p><strong>Property Selection Type</strong>: Cvalue</p>
                             The properties listed below all share the same CVterm value (Cvalue).";
 
-    $instruction_markup = "<p><strong>Term Name</strong>: {$cvterm_name}</p>";
-    $instruction_markup = "<p><strong>Term Definition</strong>: {cvterm_definition}</p>";
+    $instruction_markup .= "<p><strong>Term Name</strong>: {$cvterm_name}</p>";
+    $instruction_markup .= "<p><strong>Term Definition</strong>: {cvterm_definition}</p>";
 
   }
+
+  // TODO: get total count of property records
+  $total_count = 0;
 
   $instruction_markup .= '<p><b>Total Property Records: </b>' . $total_count . '</p>';
   $instruction_markup .= '<p><b>Property Tables included: </b></p><ul>';
@@ -120,24 +120,26 @@ return $form;
 
   $type_ids = [];
 
-  foreach ($properties as $table => $props) {
-    $instruction_markup .= '<li><b>' . $table . '</b>: ' . count($props) . ' </li>';
-
-    foreach ($props as $prop) {
-      $type_ids[$prop->type_id] = $prop->type_id;
-
-      if ($type == "text") {
-        //There might be multiple cvalues for free text, or none.
-
-        if (property_exists($prop, 'cvalue_id')) {
-          $cvalue_ids[$prop->cvalue_id] = $prop->cvalue_id;
-        }
-      }
-    }
-  }
+  // TODO: whatever this is
+//  foreach ($properties as $table => $props) {
+//    $instruction_markup .= '<li><b>' . $table . '</b>: ' . count($props) . ' </li>';
+//
+//    foreach ($props as $prop) {
+//      $type_ids[$prop->type_id] = $prop->type_id;
+//
+//      if ($type == "text") {
+//        //There might be multiple cvalues for free text, or none.
+//
+//        if (property_exists($prop, 'cvalue_id')) {
+//          $cvalue_ids[$prop->cvalue_id] = $prop->cvalue_id;
+//        }
+//      }
+//    }
+//  }
 
 
   $instruction_markup .= '</ul>';
+  // TODO: display property types
   $instruction_markup .= '<p><b>Property Types included: </b></p><ul>';
 
   foreach ($type_ids as $cvterm_id) {
@@ -171,7 +173,7 @@ return $form;
   //    '#type' => 'fieldset',
   //  ];
 
-  $table = tripal_curator_edit_cvalue_provide_property_table($properties);
+  // $table = tripal_curator_edit_cvalue_provide_property_table($properties);
 
 
   //TODO does it make sense to push in choices based on the $type?
@@ -341,19 +343,19 @@ function tripal_curator_edit_cvalue_form_validate($form, &$form_state) {
 
   $values = $form_state['values'];
 
-  $type = $values['type'];
+  // $type = $values['type'];
 
   $action = $values['action'];
 
-  $source_val = $values['source_value'];
+  // $source_val = $values['source_value'];
 
-  if (!$source_val) {
+  if (!$form['source_value']) {
     tripal_set_message("No source value selected!  Can't batch change NULL values!", TRIPAL_ERROR);
   }
 
   if ($action == "set_cvalue") {
 
-    $overwrite = $values['overwrite_value'];
+//    $overwrite = $values['overwrite_value'];
     $selected_target_cvterm = NULL;
 
     foreach ($values as $value_key => $value) {
@@ -370,9 +372,9 @@ function tripal_curator_edit_cvalue_form_validate($form, &$form_state) {
       form_set_error('destination_type', t("You must select a valid destination CVterm for this value. You must press Lookup Term and select a CVterm."));
     }
 
-    if (!$overwrite) {
-      form_set_error('overwrite_value', t("Please select an overwrite option."));
-    }
+//    if (!$overwrite) {
+//      form_set_error('overwrite_value', t("Please select an overwrite option."));
+//    }
   }
 
   if ($action == "split") {
@@ -390,21 +392,20 @@ function tripal_curator_edit_cvalue_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   $action = $values['action'];
   $selected_target_cvterm = NULL;
-  $source_val = $values['source_value'];
-  $source_val = $values['source_value'];
+  $source_val = $form['source_value']['#value'];
 
   $type = $values['type'];
   $overwrite = isset($values['overwrite_value']) ? $values['overwrite_value'] : NULL;
 
-
   //Build the property object
   $prop_obj = new \tripal_curator\CValue();
+
   if ($type === "text") {
     $prop_obj->set_value_text($source_val);
   }
-  if ($type === "cvalue") {
-    $prop_obj->set_cvalue_search($source_val);
-  }
+//  if ($type === "cvalue") {
+//    $prop_obj->set_cvalue_search($source_val);
+//  }
 
   if ($action == "set_cvalue") {
 
@@ -417,6 +418,8 @@ function tripal_curator_edit_cvalue_form_submit($form, &$form_state) {
         }
       }
     }
+
+    $prop_obj->set_cvalue_search();
     $prop_obj->reassign_cvalue($selected_target_cvterm);
 
     if ($overwrite) {//overwrite the text value with the new cvterm name
@@ -430,8 +433,6 @@ function tripal_curator_edit_cvalue_form_submit($form, &$form_state) {
 
     //TODO:  not written yet.
   }
-
-
 }
 
 function tripal_curator_action_callback($form, &$form_state) {

@@ -111,35 +111,33 @@ function tripal_curator_assign_cvalue_form($form, &$form_state) {
       return $form;
     }
 
-
     $property_vals = new \tripal_curator\CValue();
+    $property_vals->set_value_text($current_text);
 
-  $property_vals->set_value_text($current_text);
-
-  $total = $property_vals->get_total_count();
-  $props = $property_vals->get_properties();
-
-
-  $table = [];
-
-    $table = '<h3>Properties matching ' .$current_text .  ' </h3>';
-
-    $table .= "<p><strong>Total:  </strong>  {$total} </p>";
-
-    foreach ($props as $table_name => $properties){
-      $table_count = count($properties);
-      $table .= "<p><strong>{$table_name}:  </strong>  {$table_count} </p>";
-    }
+    $total = $property_vals->get_total_count();
+    $props = $property_vals->get_properties();
 
 
-    $link = l("Click to edit or split", "/admin/tripal/extensions/tripal_curator/edit_cvalue/text/" . $current_text);
+    $table = [];
 
-    $table .= "<strong>{$link}</strong>";
+      $table = '<h3>Properties matching ' .$current_text .  ' </h3>';
+
+      $table .= "<p><strong>Total:  </strong>  {$total} </p>";
+
+      foreach ($props as $table_name => $properties){
+        $table_count = count($properties);
+        $table .= "<p><strong>{$table_name}:  </strong>  {$table_count} </p>";
+      }
 
 
-    $form['div2']['matching_property_values'] = [
-    '#markup' => $table
-  ];
+      $link = l("Click to edit or split", "/admin/tripal/extension/tripal_curator/edit_cvalue/text/" . $current_text);
+
+      $table .= "<strong>{$link}</strong>";
+
+
+      $form['div2']['matching_property_values'] = [
+      '#markup' => $table
+    ];
 
   }
 
@@ -175,7 +173,6 @@ $description = "";
     if (array_key_exists('input', $form_state) and array_key_exists('search_cvterm', $form_state['input'])) {
       $term_name = array_key_exists('input', $form_state) ? $form_state['input']['search_cvterm'] : '';
     }
-
 
     if ($term_name) {
       $submit_disabled = TRUE;
@@ -295,7 +292,7 @@ function tripal_curator_build_blanks_table() {
       $cvterm = tripal_get_cvterm(['cvterm_id' => $type_id]);
 
       $linked_entity = l('coming soon', '1');
-      $value = l($value, '/admin/tripal/extensions/tripal_curator/edit_cvalue/text/' . $value);
+      $value = l($value, '/admin/tripal/extension/tripal_curator/edit_cvalue/text/' . $value);
 
       $rows[] = [
         'Value' => $value,
