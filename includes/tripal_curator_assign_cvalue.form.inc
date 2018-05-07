@@ -141,9 +141,8 @@ function tripal_curator_assign_cvalue_form($form, &$form_state) {
 
   }
 
-
   if ($select_type === 'existing' ) {
-$description = "";
+    $description = "";
 
     $form['div1']['search_cvterm'] = [
       '#title' => t('CVterm Lookup'),
@@ -151,7 +150,6 @@ $description = "";
       '#type' => 'textfield',
       '#autocomplete_path' => "admin/tripal/storage/chado/auto_name/cvterm/",
     ];
-
 
     $form['div1']['select_cvterm'] = [
       '#type' => 'button',
@@ -161,14 +159,13 @@ $description = "";
       '#limit_validation_errors' => [],
       '#ajax' => [
         'callback' => "tripal_curator_cvalue_cvterm_callback",
-        'wrapper' => "tripal_curator_search_callback",
+        'wrapper' => "div1_wrapper",
         'effect' => 'fade',
         'method' => 'replace',
       ],
     ];
 
-
-    $term_name = '';
+    $term_name = 'local_class';
 
     if (array_key_exists('input', $form_state) and array_key_exists('search_cvterm', $form_state['input'])) {
       $term_name = array_key_exists('input', $form_state) ? $form_state['input']['search_cvterm'] : '';
@@ -176,7 +173,7 @@ $description = "";
 
     if ($term_name) {
       $submit_disabled = TRUE;
-      $form['destination_type']['terms_list'] = [
+      $form['div1']['terms_list'] = [
         '#type' => 'fieldset',
         '#title' => t('Matching Terms'),
         '#description' => t('Please select a destination term.  All properties above will be converted to this property type.')
@@ -201,7 +198,7 @@ $description = "";
           $attrs = ['checked' => 'checked'];
         }
         $term_element_name = 'term-' . $term->cvterm_id;
-        $form['destination_type']['terms_list'][$term_element_name] = [
+        $form['div1']['terms_list'][$term_element_name] = [
           '#type' => 'radio',
           '#title' => $term->name,
           '#default_value' => $default,
@@ -216,6 +213,11 @@ $description = "";
     }
 
   }
+
+  $form['submit'] = [
+    '#type' => 'submit',
+    '#value' => 'submit',
+  ];
 
 
     return ($form);
@@ -330,4 +332,7 @@ function tripal_curator_select_type_callback($form, &$form_state) {
 
 function tripal_curator_search_callback($form, &$form_state) {
   return $form['div2'];
+}
+function tripal_curator_cvalue_cvterm_callback($form, &$form_state) {
+  return $form['div1'];
 }
