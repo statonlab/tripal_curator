@@ -3,7 +3,6 @@
 namespace Tests;
 
 use StatonLab\TripalTestSuite\TripalTestCase;
-
 use \tripal_curator\includes\CV;
 
 class CVTest extends TripalTestCase {

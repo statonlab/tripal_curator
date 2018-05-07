@@ -1,14 +1,15 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+namespace Tests;
 
+use StatonLab\TripalTestSuite\TripalTestCase;
 use \tripal_curator\Chado_property;
 
 //some reading for organizing and annotating tests
 //https://stackoverflow.com/questions/8313283/phpunit-best-practices-to-organize-tests
 //https://jtreminio.com/2013/03/unit-testing-tutorial-introduction-to-phpunit/
 
-class ChadoPropertyTest extends TestCase {
+class ChadoPropertyTest extends TripalTestCase {
 
 
   public $cvterm_test;

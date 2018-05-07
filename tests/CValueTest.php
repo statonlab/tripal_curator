@@ -3,7 +3,6 @@
 namespace Tests;
 
 use StatonLab\TripalTestSuite\TripalTestCase;
-
 use \tripal_curator\CValue;
 
 //some reading for organizing and annotating tests
