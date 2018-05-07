@@ -1,19 +1,20 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+namespace Tests;
+
+use StatonLab\TripalTestSuite\TripalTestCase;
 
 //some reading for organizing and annotating tests
 //https://stackoverflow.com/questions/8313283/phpunit-best-practices-to-organize-tests
 //https://jtreminio.com/2013/03/unit-testing-tutorial-introduction-to-phpunit/
 
-final class tripal_curator_test extends TestCase
+class TripalCuratorTest extends TripalTestCase
 {
 
   public function testTrueIsTrue()
   {
     $foo = true;
     $this->assertTrue($foo);
-
   }
 
   public function test_property_tables_returns_prop_tables_only(){

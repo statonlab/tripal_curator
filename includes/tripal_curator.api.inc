@@ -151,3 +151,46 @@ function tripal_curator_get_cv_usage($desired_cv = null) {
 
   return ($cv_usage);
 }
+
+/**
+ * Creates a fieldset for the split property feature, giving the user the
+ * interface needed to create a child property.
+
+ * @param $parent
+ *  The child property under which to create the new property. Only needs to be
+ *  specified if you're splitting a child property.
+ *
+ */
+function tripal_curator_split_property_add_child(&$form, $form_state, $parent = NULL)
+{
+  $count = 1;
+
+  // Find the first occurrence where a split does not exist
+  while (array_key_exists('split_' . $count, $form['action_type_wrapper']))
+    ++$count;
+
+  $split_key = 'split_' . $count;
+
+  // Create the fieldset
+  $form['action_type_wrapper'][$split_key] = [
+    '#type' => 'fieldset',
+    '#title' => t('Child ' . $count),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  ];
+  // Create the value textfield
+  $form['action_type_wrapper'][$split_key]['value_text'] = [
+    '#title' => 'Value Text',
+    '#description' => 'The value free text that describes this property.',
+    '#type' => 'textfield',
+    '#required' => TRUE,
+  ];
+  // Create the property type textfield
+  $form['action_type_wrapper'][$split_key]['type'] = [
+    '#title' => 'Property Type',
+    '#description' => 'The type of this property.',
+    '#type' => 'textfield',
+    '#required' => TRUE,
+  ];
+  // Create the cvterm browser
+}

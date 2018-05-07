@@ -1,14 +1,15 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+namespace Tests;
 
+use StatonLab\TripalTestSuite\TripalTestCase;
 use \tripal_curator\CValue;
 
 //some reading for organizing and annotating tests
 //https://stackoverflow.com/questions/8313283/phpunit-best-practices-to-organize-tests
 //https://jtreminio.com/2013/03/unit-testing-tutorial-introduction-to-phpunit/
 
-final class Cvalue_test extends TestCase {
+class CValueTest extends TripalTestCase {
 
   public $cvalue = NULL;
 
