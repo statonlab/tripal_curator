@@ -8,7 +8,7 @@ use \tripal_curator\Chado_property;
 //https://stackoverflow.com/questions/8313283/phpunit-best-practices-to-organize-tests
 //https://jtreminio.com/2013/03/unit-testing-tutorial-introduction-to-phpunit/
 
-final class Chado_property_test extends TestCase {
+class ChadoPropertyTest extends TestCase {
 
 
   public $cvterm_test;

@@ -1,10 +1,12 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+namespace Tests;
+
+use StatonLab\TripalTestSuite\TripalTestCase;
 
 use \tripal_curator\includes\CV;
 
-final class CV_test extends TestCase {
+class CVTest extends TripalTestCase {
 
   //Fake CVterm for testing
   public $CV;
