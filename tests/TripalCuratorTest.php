@@ -15,7 +15,6 @@ class TripalCuratorTest extends TripalTestCase
   {
     $foo = true;
     $this->assertTrue($foo);
-
   }
 
   public function test_property_tables_returns_prop_tables_only(){
