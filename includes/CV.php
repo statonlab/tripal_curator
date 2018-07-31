@@ -74,6 +74,7 @@ class CV {
     $output = [];
 
     $usage = $this->cvterms_by_prop_table;
+
     foreach ($tables as $table) {
 
       $output[$table] = $usage[$table];
