@@ -147,33 +147,28 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id) {
 
   $terms = $cvterms->get_terms_specific(array_keys($included));
 
-  foreach ($terms as $term) {
-    $name = NULL;
-    $values = [];
-    $instance_count = 0;
-
-    foreach ($term as $term_instance) {
-
+  foreach ($terms as $proptable => $tables) {
+    $term_info = [];
+    foreach ($tables as $term) {
+      $name = NULL;
+      $values = [];
       $row = [];
-      $type = $term_instance['type'];
-      $name = $term_instance['term_name'];
-      $value = $term_instance['value'];
-
-      $instance_count++;
+      $type = $term['type'];
+      $name = $term['term_name'];
+      $value = $term['value'];
+     // $count = $term['count'];
+      $name = l($name, 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
+      $row = [$name];
+      $rows[] = $row;
     }
 
-    $name = l($name . ": " . $instance_count . " uses", 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
+    $table = ['rows' => $rows, 'header' => $header];
+    $form['cvterms']['table'][$proptable] = [
+      '#markup' => theme('table', $table),
+      '#prefix' => '<h3>' . $proptable . '</h3>',
+    ];
 
-    $row = [$name];
-    $rows[] = $row;
   }
-  $table = ['rows' => $rows, 'header' => $header];
-
-
-  $form['cvterms']['table'] = [
-    '#markup' => theme('table', $table),
-  ];
-
 
   return $form;
 }
@@ -183,4 +178,8 @@ function tripal_curator_cv_filter_cvterms_callback($form, &$form_state) {
 
   return $form['cvterms'];
 
+}
+
+function tripal_curator_cv_summarize_term_usage($terms) {
+  return NULL;
 }
