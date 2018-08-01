@@ -20,8 +20,6 @@ This page is for managing your properties by controlled vocabulary.  Some module
     '#markup' => $markup,
   ];
 
-  //$cv_usage = tripal_curator_get_cv_usage();
-
   $cv_usage = tripal_curator_get_prop_by_cv_count();
 
   foreach ($cv_usage as $prop_table => $cvs) {

@@ -60,7 +60,7 @@ class CV {
     foreach ($this->cvterms_by_prop_table as $prop_table => $props) {
 
       foreach ($props as $term) {
-        $terms[$term["type"]] = $term;
+        $terms[$term->type_id] = $term;
       }
     }
     return $terms;

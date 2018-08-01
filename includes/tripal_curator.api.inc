@@ -173,63 +173,6 @@ function tripal_curator_get_prop_by_cv_count() {
 }
 
 /**
- * Goes through all properties in all chado property tables and indexes what
- * CVs are used where.
- *
- * @param null $desired_cv - If a cv_id is given, will return this cv's usage
- *   only.
- *
- * @return array|mixed
- *
- * DEPRECATE
- */
-function tripal_curator_get_cv_usage($desired_cv = NULL) {
-
-  $cv_usage = [];
-
-  $prop_tables = tripal_curator_get_property_tables();
-  foreach ($prop_tables as $prop_table) {
-    $props = tripal_curator_fetch_props_for_prop_table($prop_table);
-    foreach ($props as $prop) {
-      $cv = $prop->cv_id;
-      $type = $prop->type_id;
-      $term_name = $prop->name;
-      $value_text = $prop->value;
-      $db = $prop->db_id;
-
-      $cv_array = [];
-      if (isset($cv_usage[$cv])) {
-        $cv_array = $cv_usage[$cv];
-      }
-      else {
-        //populate basic info about this CV
-
-        //get cv name.  dont use generate var because it is SLOW
-        $query = db_select('chado.cv', 't')
-          ->fields('t', ['name'])
-          ->condition('cv_id', $cv);
-        $cv_name = $query->execute()->fetchField();
-        $cv_expanded = (object) ['name' => $cv_name, 'cv_id' => $cv];
-        $cv_array["cv_info"] = $cv_expanded;
-      }
-
-      //TODO:  this is wrong.  value needs to be an ARRAY of values (each useage case).
-      //In addition I'd like to track the record_ids as well
-      $cv_array[$prop_table][$type] = [
-        'type' => $type,
-        'term_name' => $term_name,
-        'value' => $value_text,
-      ];
-      $cv_usage[$cv] = $cv_array;
-    }
-  }
-  if ($desired_cv) {
-    return $cv_usage[$desired_cv];
-  }
-  return ($cv_usage);
-}
-
-/**
  * Creates a fieldset for the split property feature, giving the user the
  * interface needed to create a child property.
  *
