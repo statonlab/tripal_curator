@@ -24,27 +24,35 @@ function tripal_curator_get_property_tables() {
 
 /**
  * Get all Chado property tables that have the cvalue_id column.
- * Because this isnt in the official Chado release as of this writing, not all property tables will have the column.
+ * Because this isnt in the official Chado release as of this writing, not all
+ * property tables will have the column.
  *
  * @return array
  */
-function tripal_curator_get_property_tables_with_cvalues(){
-$tables = tripal_curator_get_property_tables();
+function tripal_curator_get_property_tables_with_cvalues() {
+  $tables = tripal_curator_get_property_tables();
 
-$output_tables = [];
+  $output_tables = [];
 
-foreach ($tables as $table){
+  foreach ($tables as $table) {
 
-  if (db_field_exists(tripal_curator_chadofy($table), 'cvalue_id')){
-    $output_tables[] = $table;
+    if (db_field_exists(tripal_curator_chadofy($table), 'cvalue_id')) {
+      $output_tables[] = $table;
+    }
   }
-}
 
   return $output_tables;
 
 }
 
 
+/**
+ * Retrieve all properties for a given prop table.
+ *
+ * @param $table
+ *
+ * @return null
+ */
 function tripal_curator_fetch_props_for_prop_table($table) {
   //check that this is a prop table
 
@@ -58,7 +66,6 @@ function tripal_curator_fetch_props_for_prop_table($table) {
 
   $query = db_select(tripal_curator_chadofy($table), 'PT'); //prop table
   $query->fields('PT', [$base_table . '_id', 'type_id', 'value']);
-  //TODO: conditionally add cvlaue_id here
   $query->innerJoin(tripal_curator_chadofy('cvterm'), 'CVT', 'CVT.cvterm_id = PT.type_id');
   $query->fields('CVT', ['cv_id', 'name', 'definition', 'dbxref_id']);
   $query->innerJoin(tripal_curator_chadofy('dbxref'), 'DBX', 'CVT.dbxref_id = DBX.dbxref_id');
@@ -101,22 +108,48 @@ function tripal_curator_chadofy($string) {
   return ('chado.' . $string);
 }
 
+
+function tripal_curator_get_prop_by_cv_count() {
+
+  $cv_usage = [];
+
+  $prop_tables = tripal_curator_get_property_tables();
+
+
+  foreach ($prop_tables as $prop_table) {
+
+    $query = db_select(tripal_curator_chadofy($prop_table), 't');
+    $query->join('chado.cvterm', 'cvt', 'cvt.cvterm_id = t.type_id');
+    $query->distinct();
+   // $query->addField('cvt', 'cvterm_id');
+    $query->join('chado.cv','cv', 'cv.cv_id = cvt.cv_id');
+    $query->fields('cv', ['name', 'cv_id']);
+    $query->addExpression('COUNT(cv.name)', 'count');
+    $query->groupBy('cv.name, cv.cv_id');
+    $result = $query->execute()->fetchAll();
+    if ($result){
+      $cv_usage[$prop_table] = $result;
+    }
+  }
+  return $cv_usage;
+}
+
 /**
  * Goes through all properties in all chado property tables and indexes what
  * CVs are used where.
-
- * @param null $desired_cv  - If a cv_id is given, will return this cv's usage only.
+ *
+ * @param null $desired_cv - If a cv_id is given, will return this cv's usage
+ *   only.
  *
  * @return array|mixed
  */
-function tripal_curator_get_cv_usage($desired_cv = null) {
+function tripal_curator_get_cv_usage($desired_cv = NULL) {
 
   $cv_usage = [];
 
   $prop_tables = tripal_curator_get_property_tables();
   foreach ($prop_tables as $prop_table) {
     $props = tripal_curator_fetch_props_for_prop_table($prop_table);
-
     foreach ($props as $prop) {
       $cv = $prop->cv_id;
       $type = $prop->type_id;
@@ -127,13 +160,16 @@ function tripal_curator_get_cv_usage($desired_cv = null) {
       $cv_array = [];
       if (isset($cv_usage[$cv])) {
         $cv_array = $cv_usage[$cv];
-      }else {
+      }
+      else {
         //populate basic info about this CV
 
         //get cv name.  dont use generate var because it is SLOW
-        $query =  db_select('chado.cv', 't')->fields('t', ['name'])->condition('cv_id', $cv);
+        $query = db_select('chado.cv', 't')
+          ->fields('t', ['name'])
+          ->condition('cv_id', $cv);
         $cv_name = $query->execute()->fetchField();
-        $cv_expanded = (object) ['name'=> $cv_name, 'cv_id' => $cv];
+        $cv_expanded = (object) ['name' => $cv_name, 'cv_id' => $cv];
         $cv_array["cv_info"] = $cv_expanded;
       }
 
@@ -147,29 +183,28 @@ function tripal_curator_get_cv_usage($desired_cv = null) {
       $cv_usage[$cv] = $cv_array;
     }
   }
-  if ($desired_cv){
+  if ($desired_cv) {
     return $cv_usage[$desired_cv];
   }
-
   return ($cv_usage);
 }
 
 /**
  * Creates a fieldset for the split property feature, giving the user the
  * interface needed to create a child property.
-
+ *
  * @param $parent
  *  The child property under which to create the new property. Only needs to be
  *  specified if you're splitting a child property.
  *
  */
-function tripal_curator_split_property_add_child(&$form, $form_state, $parent = NULL)
-{
+function tripal_curator_split_property_add_child(&$form, $form_state, $parent = NULL) {
   $count = 1;
 
   // Find the first occurrence where a split does not exist
-  while (array_key_exists('split_' . $count, $form['action_type_wrapper']))
+  while (array_key_exists('split_' . $count, $form['action_type_wrapper'])) {
     ++$count;
+  }
 
   $split_key = 'split_' . $count;
 
