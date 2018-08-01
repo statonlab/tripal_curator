@@ -11,6 +11,7 @@ class CVTermTest extends TripalTestCase {
   public $cvterm;
 
   public function setUp() {
+    parent::setUp();
 
     //build fake cvterm
     $cvterm =  tripal_insert_cvterm(

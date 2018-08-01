@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use StatonLab\TripalTestSuite\DBTransaction;
 use StatonLab\TripalTestSuite\TripalTestCase;
 use \tripal_curator\Chado_property;
 
@@ -12,6 +13,8 @@ use \tripal_curator\Chado_property;
 class ChadoPropertyTest extends TripalTestCase {
 
 
+  use DBTransaction;
+
   public $cvterm_test;
 
   public $cvterm_existing;
@@ -20,6 +23,7 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   protected function setUp() {
+    parent::setUp();
 
     $cvterm = tripal_insert_cvterm(
       [

@@ -23,6 +23,7 @@ class CValueTest extends TripalTestCase {
   public $fake_biomat_id = NULL;
 
   public function setUp() {
+    parent::setUp();
 
     $cvterm = chado_insert_cvterm(
       [
