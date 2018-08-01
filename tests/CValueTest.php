@@ -42,6 +42,11 @@ class CValueTest extends TripalTestCase {
     //insert a fake biomaterial
 
 
+    if (!chado_table_exists('chado.biomaterialprop', 't')){
+      print("warning: biomaterialprop table doesnt exist!");
+      exit ;
+    }
+
     $prop = db_select('chado.biomaterialprop', 't')
       ->condition('t.biomaterial_id', $biomaterial->biomaterial_id)
       ->condition('t.type_id', $cvterm->cvterm_id)
