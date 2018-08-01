@@ -20,20 +20,25 @@ class CV {
   private $cvterms_by_prop_table;
 
 
+  private function get_cv_info() {
+    $id = $this->cv_id;
+
+    $cv_info = db_select('chado.cv', 't')
+      ->fields('t', ['name', 'definition'])
+      ->execute()
+      ->fetchObject();
+    $this->cv_name = $cv_info->name;
+    $this->cv_definition = $cv_info->definition;
+  }
+
   public function set_id($id) {
     $this->cv_id = $id;
 
     //set all prop tables
-    $usage = tripal_curator_get_cv_usage($id);
+    $usage = tripal_curator_get_props_for_cv($id);
 
     if ($usage) {
-
-      $cv_info = $usage["cv_info"];
-      $this->cv_name = $cv_info->name;
-      $this->cv_definition = $cv_info->definition;
-      unset($usage["cv_info"]);
-
-
+      $this->get_cv_info();
       $this->prop_tables = array_keys($usage);
 
       $this->cvterms_by_prop_table = $usage;
@@ -43,7 +48,8 @@ class CV {
 
 
   /**Returns all terms stored in the object.
-   * To return only terms for a specific prop table, use get terms specific instead, or, use set props first.
+   * To return only terms for a specific prop table, use get terms specific
+   * instead, or, use set props first.
    *
    * @return array
    */
@@ -112,6 +118,7 @@ class CV {
 
   /**
    * Return the CV name.
+   *
    * @return mixed
    */
   public function get_cv_name() {

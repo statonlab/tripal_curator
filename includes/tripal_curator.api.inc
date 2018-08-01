@@ -109,28 +109,66 @@ function tripal_curator_chadofy($string) {
 }
 
 
+function tripal_curator_get_props_for_cv($cv_id) {
+
+$out = [];
+  $prop_tables = tripal_curator_get_property_tables($desired_cv = NULL);
+
+  foreach ($prop_tables as $prop_table) {
+    $query = db_select(tripal_curator_chadofy($prop_table), 't');
+    $query->join('chado.cvterm', 'cvt', 'cvt.cvterm_id = t.type_id');
+    $query->join('chado.cv', 'cv', 'cv.cv_id = cvt.cv_id');
+    $query->fields('t', ['value', 'type_id']);
+    $query->fields('cvt', ['name']);
+    $query->distinct();
+    $query->condition('cv.cv_id', $cv_id);
+    $results = $query->execute()->fetchAll();
+    if ($results){
+      $out[$prop_table] = $results;
+    }
+
+  }
+  return $out;
+}
+/**
+ * get CV usage information at the CV level, for all prop tables.
+ * @return array
+ */
 function tripal_curator_get_prop_by_cv_count() {
 
   $cv_usage = [];
 
-  $prop_tables = tripal_curator_get_property_tables();
+  $prop_tables = tripal_curator_get_property_tables($desired_cv = NULL);
 
-
-  foreach ($prop_tables as $prop_table) {
+    foreach ($prop_tables as $prop_table) {
 
     $query = db_select(tripal_curator_chadofy($prop_table), 't');
     $query->join('chado.cvterm', 'cvt', 'cvt.cvterm_id = t.type_id');
-    $query->distinct();
-   // $query->addField('cvt', 'cvterm_id');
     $query->join('chado.cv','cv', 'cv.cv_id = cvt.cv_id');
-    $query->fields('cv', ['name', 'cv_id']);
-    $query->addExpression('COUNT(cv.name)', 'count');
-    $query->groupBy('cv.name, cv.cv_id');
-    $result = $query->execute()->fetchAll();
-    if ($result){
-      $cv_usage[$prop_table] = $result;
+    $query->fields('cv', ['cv_id', 'name']);
+    $query->distinct();
+    $cvs = $query->execute()->fetchAll();
+
+    foreach ($cvs as $cv){
+      $query = db_select(tripal_curator_chadofy($prop_table), 't');
+      $query->join('chado.cvterm', 'cvt', 'cvt.cvterm_id = t.type_id');
+      $query->groupBy('cvt.cvterm_id');
+      $count = $query->countQuery()->execute()->fetchField();
+      $cv->count = $count;
+      $cv_usage[$prop_table][] = $cv;
     }
+    }
+
+  if ($desired_cv) {
+      $output_desired = [];
+      dpm($desired_cv);
+      foreach ($cv_usage as $prop_table => $cvs){
+
+      }
+
+    return $cv_usage[$desired_cv];
   }
+
   return $cv_usage;
 }
 
@@ -142,6 +180,8 @@ function tripal_curator_get_prop_by_cv_count() {
  *   only.
  *
  * @return array|mixed
+ *
+ * DEPRECATE
  */
 function tripal_curator_get_cv_usage($desired_cv = NULL) {
 

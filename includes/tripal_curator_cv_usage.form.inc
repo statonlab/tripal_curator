@@ -23,32 +23,31 @@ This page is for managing your properties by controlled vocabulary.  Some module
   //$cv_usage = tripal_curator_get_cv_usage();
 
   $cv_usage = tripal_curator_get_prop_by_cv_count();
-  
-  foreach ($cv_usage as $prop_table => $cvs){
+
+  foreach ($cv_usage as $prop_table => $cvs) {
 
     $total_count = 0;
     $header = [
       'CV',
       'Unique terms',
-   //   'Total entities',
-    //  "Edit usage",
+      //   'Total entities',
+      //  "Edit usage",
     ];
     $rows = [];
 
-    foreach ($cvs as $cv){
 
-
+    foreach ($cvs as $cv) {
       $cv_name = $cv->name;
       $cv_id = $cv->cv_id;
       $count = $cv->count;
       $total_count += $count;
 
       //$edit_link = '<a href = "CV_usage/' . $cv_id . '">'.  . ' </a>';
-      $edit_link = l( $cv_name, 'admin/tripal/extension/tripal_curator/CV_usage/' . $cv_id );
+      $edit_link = l($cv_name, 'admin/tripal/extension/tripal_curator/CV_usage/' . $cv_id);
       $rows[] = [
         'CV' => $edit_link,
         'Unique terms used' => $count,
-      //  'Total entities' => "not implemented yet",// $entity_count,
+        //  'Total entities' => "not implemented yet",// $entity_count,
       ];
     }
     //pagination settings
@@ -68,7 +67,7 @@ This page is for managing your properties by controlled vocabulary.  Some module
     $form[$prop_table]['Table'] = [
       '#type' => 'markup',
       '#markup' => $output,
-      '#prefix' => '<h3>'. $prop_table . '</h3>'
+      '#prefix' => '<h3>' . $prop_table . '</h3>',
     ];
   }
 
@@ -136,33 +135,59 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id) {
 
 
   $rows = [];
-  $header = ['CVterm'];
-
+  $header = ['CVterm', 'Values'];
 
   $terms = $cvterms->get_terms_specific(array_keys($included));
 
+
   foreach ($terms as $proptable => $tables) {
+
+    if (empty($tables)) {
+      continue;
+    }
     $term_info = [];
     foreach ($tables as $term) {
       $name = NULL;
       $values = [];
       $row = [];
-      $type = $term['type'];
-      $name = $term['term_name'];
-      $value = $term['value'];
-     // $count = $term['count'];
-      $name = l($name, 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
-      $row = [$name];
-      $rows[] = $row;
+      $type = $term->type_id;
+      $name = $term->name;
+      $value = $term->value;
+      if (isset($term_info[$type])) {
+        $values = $term_info[$type]['values'];
+      }
+      $values[] = $value;
+      $term_info[$type] = [
+        'type_id' => $type,
+        'name' => $name,
+        'values' => $values,
+      ];
     }
+
+    foreach ($term_info as $term ){
+      $name = $term['name'];
+      $values = $term['values'];
+      $type = $term['type_id'];
+
+      $name = l($name, 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
+
+      $value_list = implode(', ', $values);
+
+      $row = [$name, $value_list];
+      $rows[] = $row;
+
+    }
+
+
 
     $table = ['rows' => $rows, 'header' => $header];
     $form['cvterms']['table'][$proptable] = [
       '#markup' => theme('table', $table),
       '#prefix' => '<h3>' . $proptable . '</h3>',
-    ];
+      ];
 
   }
+
 
   return $form;
 }
