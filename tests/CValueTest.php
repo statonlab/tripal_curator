@@ -47,6 +47,8 @@ class CValueTest extends TripalTestCase {
       exit ;
     }
 
+    var_dump($cvterm);
+    
     $prop = db_select('chado.biomaterialprop', 't')
       ->condition('t.biomaterial_id', $biomaterial->biomaterial_id)
       ->condition('t.type_id', $cvterm->cvterm_id)
