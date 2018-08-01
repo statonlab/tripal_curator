@@ -71,3 +71,27 @@ Factory::define('chado.feature', function (Faker\Generator $faker) {
         'type_id' => factory('chado.cvterm')->create()->cvterm_id,
     ];
 });
+
+
+/** @see  StatonLab\TripalTestSuite\Database\Factory::define() */
+Factory::define('chado.biomaterial', function (Faker\Generator $faker) {
+  return [
+    'taxon_id' => factory('chado.organism')->create()->organism_id,
+    'biosourceprovider_id' =>factory('chado.contact')->create()->contact_id,
+    'dbxref_id' => NULL,
+    'name' => $faker->unique()->name,
+    'description' => $faker->text
+  ];
+});
+
+
+
+
+/** @see  StatonLab\TripalTestSuite\Database\Factory::define() */
+Factory::define('chado.contact', function (Faker\Generator $faker) {
+  return [
+    'type_id' => factory('chado.cvterm')->create()->cvterm_id,
+    'name' => $faker->unique()->name,
+    'description' => $faker->text
+  ];
+});

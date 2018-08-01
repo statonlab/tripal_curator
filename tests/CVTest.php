@@ -4,9 +4,12 @@ namespace Tests;
 
 use StatonLab\TripalTestSuite\TripalTestCase;
 use \tripal_curator\includes\CV;
+use StatonLab\TripalTestSuite\DBTransaction;
+
 
 class CVTest extends TripalTestCase {
 
+  use DBTransaction;
   //Fake CVterm for testing
   public $CV;
 

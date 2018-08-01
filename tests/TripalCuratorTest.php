@@ -3,9 +3,12 @@
 namespace Tests;
 
 use StatonLab\TripalTestSuite\TripalTestCase;
+use StatonLab\TripalTestSuite\DBTransaction;
 
 class TripalCuratorTest extends TripalTestCase
+
 {
+  use DBTransaction;
 
   public function test_property_tables_returns_prop_tables_only(){
     $tables = tripal_curator_get_property_tables();
@@ -42,6 +45,4 @@ class TripalCuratorTest extends TripalTestCase
     $list = tripal_curator_get_property_tables_with_cvalues();
     $this->assertNotEmpty($list);
   }
-
-
 }

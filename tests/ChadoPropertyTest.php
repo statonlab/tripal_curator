@@ -50,12 +50,11 @@ class ChadoPropertyTest extends TripalTestCase {
 
     //create a biomaterial that will be not have a cvalue
 
-    //insert a fake biomaterial
-    $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator blank cvalue", NULL, NULL, NULL, NULL, NULL);
+   $biomaterial = factory('chado.biomaterial')->create([]);
 
     $query = db_insert('chado.biomaterialprop')
       ->fields([
-        'biomaterial_id' => $biomaterial_id,
+        'biomaterial_id' => $biomaterial->biomaterial_id,
         "type_id" => $cvterm->cvterm_id,
         "value" => "No cvalue!",
         'cvalue_id' => NULL,
@@ -108,13 +107,13 @@ class ChadoPropertyTest extends TripalTestCase {
 
   }
 
-  public function testremap_property_all() {
-    $this->property->remap_property_all($this->cvterm_test->cvterm_id);
-
-    $this->assertEquals($this->cvterm_test->cvterm_id, $this->property->get_type_id());
-    $this->assertNotEmpty($this->property->get_props());
-
-  }
+//  public function testremap_property_all() {
+//    $this->property->remap_property_all($this->cvterm_test->cvterm_id);
+//
+//    $this->assertEquals($this->cvterm_test->cvterm_id, $this->property->get_type_id());
+//    $this->assertNotEmpty($this->property->get_props());
+//
+//  }
 
 
   public function test_build_blank_cvalues_finds_properties() {
@@ -140,27 +139,5 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->assertNull($prop->cvalue_id, "Property retrieved from build_blank_cvalues has non-null cvalue_id");
 
   }
-
-
-  protected function tearDown() {
-
-    $values = ['name' => 'Tripal Curator blank cvalue'];
-    chado_delete_record('biomaterial', $values);
-
-    $cvterm_existing = $this->cvterm_existing;
-    $cvterm_test = $this->cvterm_test;
-
-
-    //do another sweep for properties that we acciddentally changed to the test prop.
-    $clean_property = new Chado_property();
-    $clean_property->set_cvtermprop_search($cvterm_test->cvterm_id);
-    $clean_property->remap_property_all($cvterm_existing->cvterm_id);
-
-
-    $values = ['cvterm_id' => $cvterm_test->cvterm_id];
-    chado_delete_record('cvterm', $values);
-
-  }
-
-
+  
 }
