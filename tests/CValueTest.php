@@ -42,7 +42,7 @@ class CValueTest extends TripalTestCase {
     //insert a fake biomaterial
 
 
-    if (!chado_table_exists('chado.biomaterialprop', 't')){
+    if (!chado_table_exists('biomaterialprop', 't')){
       print("warning: biomaterialprop table doesnt exist!");
       exit ;
     }
@@ -52,7 +52,7 @@ class CValueTest extends TripalTestCase {
       ->condition('t.type_id', $cvterm->cvterm_id)
       ->condition('t.value', 'Curator Test')
       ->condition('cvalue_id', $cvterm->cvterm_id)
-      ->fields('t', 'type_id')
+      ->fields('t', ['type_id'])
       ->execute()->fetchObject();
 
     if (!$prop) {
