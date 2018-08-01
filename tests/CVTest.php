@@ -29,10 +29,9 @@ class CVTest extends TripalTestCase {
     $this->assertNotEmpty($terms);
 
     foreach ($terms as $term) {
-
-      $this->assertArrayHasKey("type", $term, "There was no type key for the term object.");
-      $this->assertArrayHasKey("term_name", $term, "There was no term name key for the term object.");
-      $this->assertArrayHasKey("value", $term, "there was no value key for the term object.");
+      $this->assertObjectHasAttribute("type_id", $term, "There was no type key for the term object.");
+      $this->assertObjectHasAttribute("name", $term, "There was no term name key for the term object.");
+      $this->assertObjectHasAttribute("value", $term, "there was no value key for the term object.");
     }
   }
   public function test_CV_returns_prop_tables_on_init() {

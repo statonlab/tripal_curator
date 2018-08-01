@@ -20,63 +20,54 @@ This page is for managing your properties by controlled vocabulary.  Some module
     '#markup' => $markup,
   ];
 
-  $cv_usage = tripal_curator_get_cv_usage();
+  $cv_usage = tripal_curator_get_prop_by_cv_count();
 
-  $header = [
-    'CV',
-    'Entity types',
-    'Unique terms used',
-    'Total entities',
-    "Edit usage",
-  ];
-  $rows = [];
+  foreach ($cv_usage as $prop_table => $cvs) {
 
-  foreach ($cv_usage as $cv) {
-    $cv_info = $cv['cv_info'];
+    $total_count = 0;
+    $header = [
+      'CV',
+      'Unique terms',
+      //   'Total entities',
+      //  "Edit usage",
+    ];
+    $rows = [];
 
-    unset($cv['cv_info']);
 
-    $cv_name = $cv_info->name;
-    $cv_id = $cv_info->cv_id;
+    foreach ($cvs as $cv) {
+      $cv_name = $cv->name;
+      $cv_id = $cv->cv_id;
+      $count = $cv->count;
+      $total_count += $count;
 
-    $types_list = array_keys($cv);
-    $entity_count = 0;
-    $term_count = 0;
-
-    foreach ($cv as $prop_table) {
-      $term_count += count($prop_table);
+      //$edit_link = '<a href = "CV_usage/' . $cv_id . '">'.  . ' </a>';
+      $edit_link = l($cv_name, 'admin/tripal/extension/tripal_curator/CV_usage/' . $cv_id);
+      $rows[] = [
+        'CV' => $edit_link,
+        'Unique terms used' => $count,
+        //  'Total entities' => "not implemented yet",// $entity_count,
+      ];
     }
+    //pagination settings
+    $per_page = 10;
+    // Initialize the pager
+    $current_page = pager_default_initialize(count($rows), $per_page);
+    // Split your list into page sized chunks
+    $chunks = array_chunk($rows, $per_page, TRUE);
+    // Show the appropriate items from the list
+    $output = theme('table', [
+      'header' => $header,
+      'rows' => $chunks[$current_page],
+    ]);
+    // Show the pager
+    $output .= theme('pager', ['quantity', count($rows)]);
 
-
-    $edit_link = '<a href = "CV_usage/' . $cv_id . '"> edit </a>';
-    $rows[] = [
-      'CV' => $cv_name,
-      'Entity types' => implode(", ", $types_list),
-      'Unique terms used' => $term_count,
-      'Total entities' => "not implemented yet",// $entity_count,
-      'Edit' => $edit_link,
+    $form[$prop_table]['Table'] = [
+      '#type' => 'markup',
+      '#markup' => $output,
+      '#prefix' => '<h3>' . $prop_table . '</h3>',
     ];
   }
-
-  //pagination settings
-  $per_page = 20;
-  // Initialize the pager
-  $current_page = pager_default_initialize(count($rows), $per_page);
-  // Split your list into page sized chunks
-  $chunks = array_chunk($rows, $per_page, TRUE);
-  // Show the appropriate items from the list
-  $output = theme('table', [
-    'header' => $header,
-    'rows' => $chunks[$current_page],
-  ]);
-  // Show the pager
-  $output .= theme('pager', ['quantity', count($rows)]);
-
-  $form['Table'] = [
-    '#type' => 'markup',
-    '#markup' => $output,
-  ];
-
 
   return $form;
 }
@@ -142,33 +133,59 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id) {
 
 
   $rows = [];
-  $header = ['CVterm'];
-
+  $header = ['CVterm', 'Values'];
 
   $terms = $cvterms->get_terms_specific(array_keys($included));
 
+
   foreach ($terms as $proptable => $tables) {
+
+    if (empty($tables)) {
+      continue;
+    }
     $term_info = [];
     foreach ($tables as $term) {
       $name = NULL;
       $values = [];
       $row = [];
-      $type = $term['type'];
-      $name = $term['term_name'];
-      $value = $term['value'];
-     // $count = $term['count'];
-      $name = l($name, 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
-      $row = [$name];
-      $rows[] = $row;
+      $type = $term->type_id;
+      $name = $term->name;
+      $value = $term->value;
+      if (isset($term_info[$type])) {
+        $values = $term_info[$type]['values'];
+      }
+      $values[] = $value;
+      $term_info[$type] = [
+        'type_id' => $type,
+        'name' => $name,
+        'values' => $values,
+      ];
     }
+
+    foreach ($term_info as $term ){
+      $name = $term['name'];
+      $values = $term['values'];
+      $type = $term['type_id'];
+
+      $name = l($name, 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
+
+      $value_list = implode(', ', $values);
+
+      $row = [$name, $value_list];
+      $rows[] = $row;
+
+    }
+
+
 
     $table = ['rows' => $rows, 'header' => $header];
     $form['cvterms']['table'][$proptable] = [
       '#markup' => theme('table', $table),
       '#prefix' => '<h3>' . $proptable . '</h3>',
-    ];
+      ];
 
   }
+
 
   return $form;
 }
