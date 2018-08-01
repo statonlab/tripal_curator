@@ -139,5 +139,5 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->assertNull($prop->cvalue_id, "Property retrieved from build_blank_cvalues has non-null cvalue_id");
 
   }
-  
+
 }

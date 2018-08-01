@@ -22,47 +22,6 @@ class CValueTest extends TripalTestCase {
 
   public $fake_biomat_id = NULL;
 
-  /**
-   * Creates the following objects:
-   *  - cvterm
-   *  - biomaterial
-   *  - property for biomaterial with cvalue
-   */
-  //  public static function setUpBeforeClass() {
-  //    //build fake cvterms
-  //    $cvterm = tripal_insert_cvterm(
-  //      [
-  //        'name' => 'Curator Test',
-  //        'definition' => 'A test CVterm.  Should be deleted in test.',
-  //        'cv_name' => 'tripal',
-  //        'is_relationship' => 0,
-  //        'db_name' => 'tripal',
-  //      ]
-  //    );
-  //
-  //    $cvterm = tripal_insert_cvterm(
-  //      [
-  //        'name' => 'Curator Test TARGET',
-  //        'definition' => 'The target test cvterm.  Should be deleted in test.',
-  //        'cv_name' => 'tripal',
-  //        'is_relationship' => 0,
-  //        'db_name' => 'tripal',
-  //      ]
-  //    );
-  //
-  //    //insert a fake biomaterial
-  //    $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator testing biomaterial", NULL, NULL, NULL, NULL, NULL);
-  //
-  //    $query = db_insert('chado.biomaterialprop')
-  //      ->fields([
-  //        'biomaterial_id' => $biomaterial_id,
-  //        "type_id" => $cvterm->cvterm_id,
-  //        "value" => "Curator Test",
-  //        'cvalue_id' => $cvterm->cvterm_id,
-  //      ]);
-  //    $result = $query->execute();
-  //  }
-
   public function setUp() {
 
     $cvterm = chado_insert_cvterm(
@@ -77,30 +36,30 @@ class CValueTest extends TripalTestCase {
 
     $this->cvterm = $cvterm;
 
+    $biomaterial = factory('chado.biomaterial')->create(['name' => 'Tripal Curator testing biomaterial']);
+
     //insert a fake biomaterial
-    $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator testing biomaterial", NULL, NULL, NULL, NULL, NULL);
 
 
     $prop = db_select('chado.biomaterialprop', 't')
-      ->condition('t.biomaterial_id', $biomaterial_id)
+      ->condition('t.biomaterial_id', $biomaterial->biomaterial_id)
       ->condition('t.type_id', $cvterm->cvterm_id)
-    ->condition('t.value', 'Curator Test')
-    ->condition('cvalue_id', $cvterm->cvterm_id)
+      ->condition('t.value', 'Curator Test')
+      ->condition('cvalue_id', $cvterm->cvterm_id)
       ->execute()->fetchObject();
 
-      if (!$prop){
+    if (!$prop) {
 
-        $query = db_insert('chado.biomaterialprop')
-          ->fields([
-            'biomaterial_id' => $biomaterial_id,
-            "type_id" => $cvterm->cvterm_id,
-            "value" => "Curator Test",
-            'cvalue_id' => $cvterm->cvterm_id,
-          ]);
-        $result = $query->execute();
+      $query = db_insert('chado.biomaterialprop')
+        ->fields([
+          'biomaterial_id' => $biomaterial->biomaterial_id,
+          "type_id" => $cvterm->cvterm_id,
+          "value" => "Curator Test",
+          'cvalue_id' => $cvterm->cvterm_id,
+        ]);
+      $result = $query->execute();
 
-      }
-
+    }
 
 
     $cvterm = tripal_insert_cvterm(
