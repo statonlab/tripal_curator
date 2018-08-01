@@ -129,7 +129,11 @@ function tripal_curator_get_cv_usage($desired_cv = null) {
         $cv_array = $cv_usage[$cv];
       }else {
         //populate basic info about this CV
-          $cv_expanded = chado_generate_var('cv', ['cv_id' =>$cv]);
+
+        //get cv name.  dont use generate var because it is SLOW
+        $query =  db_select('chado.cv', 't')->fields('t', ['name'])->condition('cv_id', $cv);
+        $cv_name = $query->execute()->fetchField();
+        $cv_expanded = (object) ['name'=> $cv_name, 'cv_id' => $cv];
         $cv_array["cv_info"] = $cv_expanded;
       }
 
@@ -143,11 +147,9 @@ function tripal_curator_get_cv_usage($desired_cv = null) {
       $cv_usage[$cv] = $cv_array;
     }
   }
-
   if ($desired_cv){
     return $cv_usage[$desired_cv];
   }
-
 
   return ($cv_usage);
 }
