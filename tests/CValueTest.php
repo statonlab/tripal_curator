@@ -52,6 +52,7 @@ class CValueTest extends TripalTestCase {
       ->condition('t.type_id', $cvterm->cvterm_id)
       ->condition('t.value', 'Curator Test')
       ->condition('cvalue_id', $cvterm->cvterm_id)
+      ->fields('t', 'type_id')
       ->execute()->fetchObject();
 
     if (!$prop) {
