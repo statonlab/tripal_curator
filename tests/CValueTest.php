@@ -62,7 +62,7 @@ class CValueTest extends TripalTestCase {
 
   public function setUp() {
 
-    $cvterm = tripal_insert_cvterm(
+    $cvterm = chado_insert_cvterm(
       [
         'name' => 'Curator Test',
         'definition' => 'A test CVterm.  Should be deleted in test.',
