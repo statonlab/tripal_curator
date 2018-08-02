@@ -153,6 +153,7 @@ function tripal_curator_get_prop_by_cv_count() {
       $query = db_select(tripal_curator_chadofy($prop_table), 't');
       $query->join('chado.cvterm', 'cvt', 'cvt.cvterm_id = t.type_id');
       $query->groupBy('cvt.cvterm_id');
+      $query->condition('cvt.cv_id', $cv->cv_id);
       $count = $query->countQuery()->execute()->fetchField();
       $cv->count = $count;
       $cv_usage[$prop_table][] = $cv;
