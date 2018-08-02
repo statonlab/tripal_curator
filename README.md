@@ -6,8 +6,8 @@
 
 It is under development and not suitable for use yet.
 
-* [Usage Guide](#Usage-guide)
-* [Contributing](#Contributing)
+* [Usage Guide](#usage-guide)
+* [Contributing](#contributing)
 
 ![the curator](/docs/img/tripal_curator.png)
 
