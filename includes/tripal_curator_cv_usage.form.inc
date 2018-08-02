@@ -176,11 +176,22 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id) {
 
     }
 
+    //pagination settings
+    $per_page = 10;
+    // Initialize the pager
+    $current_page = pager_default_initialize(count($rows), $per_page);
+    // Split your list into page sized chunks
+    $chunks = array_chunk($rows, $per_page, TRUE);
+    // Show the appropriate items from the list
+    $output = theme('table', [
+      'header' => $header,
+      'rows' => $chunks[$current_page],
+    ]);
+    // Show the pager
+    $output .= theme('pager', ['quantity', count($rows)]);
 
-
-    $table = ['rows' => $rows, 'header' => $header];
     $form['cvterms']['table'][$proptable] = [
-      '#markup' => theme('table', $table),
+      '#markup' => $output,
       '#prefix' => '<h3>' . $proptable . '</h3>',
       ];
 
