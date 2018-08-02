@@ -6,6 +6,8 @@
 
 It is under development and not suitable for use yet.
 
+* [Usage Guide](#Usage-guide)
+* [Contributing](#Contributing)
 
 ![the curator](/docs/img/tripal_curator.png)
 
@@ -25,9 +27,11 @@ You can then visit an individual CV to view the CVterms from that CV in your pro
 Remapping properties is easily done via the Chado Property field on an entity's page.  However, you may have thousands or hundreds of thousands of entries that all tagged with a property that you want to remap.  Visit the Property type CVterm mapper to remap it to a more informative CVterm.
 
 
-# Usage guide
+# Usage-guide
 
-* [Editing by CV](docs/Edit_by_CV.md)
+* [Find and edit properties by CV](docs/Edit_by_CV.md)
+* [Find properties by CVterm](docs/Edit_by_Property_type.md)
+* Find properties by cvalue (Documentation Coming Soon)
 
 # Contributing
 
