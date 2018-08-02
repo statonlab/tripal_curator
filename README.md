@@ -9,11 +9,11 @@ It is under development and not suitable for use yet.
 * [Usage Guide](#usage-guide)
 * [Contributing](#contributing)
 
-![the curator](/docs/img/tripal_curator.png)
 
 ### Existing Features
-
 #### CV usage overview
+
+![the curator](/docs/img/tripal_curator.png)
 
 The CVterm usage table can be viewed at `/admin/tripal/extension/tripal_curator/CV_usage`.  From here you can see 
 * What CVs are used by your property tables
