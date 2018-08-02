@@ -15,6 +15,8 @@ This page lists every Chado prop table in use on your site.  It then breaks down
 
 ![CV usage area](/docs/img/edit_by_cv/cv_usage_table.png)
 
+In addition, this table tells us what **values** are asigned to properties using this term.  This can give you an idea if the property needs to be split into multiple properties, or if you have multiple property types providing similar information.
+
 Pick the CV you'd like to re-annotate.  In this example, let's pick the Tripal vocabulary for biomaterials.
  
  ![biomaterial cv usage](/docs/img/edit_by_cv/biomaterialcv_page.png)
