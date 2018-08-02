@@ -7,7 +7,7 @@
 It is under development and not suitable for use yet.
 
 
-![the curator](/docs/tripal_curator.png)
+![the curator](/docs/img/tripal_curator.png)
 
 ### Existing Features
 
@@ -25,6 +25,13 @@ You can then visit an individual CV to view the CVterms from that CV in your pro
 Remapping properties is easily done via the Chado Property field on an entity's page.  However, you may have thousands or hundreds of thousands of entries that all tagged with a property that you want to remap.  Visit the Property type CVterm mapper to remap it to a more informative CVterm.
 
 
+# Usage guide
+
+* [Editing by CV](docs/Edit_by_CV.md)
+
+# Contributing
+
+This module is not a final release.  We would welcome contribution, please reach out on the github issue queue.
 
 ### Intended Features
 
@@ -36,9 +43,3 @@ Remapping properties is easily done via the Chado Property field on an entity's 
 * Split property cvalues into multiple terms for "compound properties"
 
 * Autosuggest matching property terms
-
-# Contributing
-
-### Development
-
-For now we manually define the Drupal root in the individual test.  Make sure that your root in `test/tripal_curator.test` is set to the local path for development and the docker path for passing Travis.
