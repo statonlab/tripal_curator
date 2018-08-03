@@ -35,11 +35,9 @@ class ChadoPropertyTest extends TripalTestCase {
       ]
     );
 
-
     $this->cvterm_test = $cvterm;
 
     $property = new Chado_property();
-
 
     $query = [
       'name' => 'comment',
@@ -51,11 +49,12 @@ class ChadoPropertyTest extends TripalTestCase {
     $property->set_cvtermprop_search($cvprop_term->cvterm_id);
     $this->property = $property;
 
-
     //create a biomaterial that will be not have a cvalue
 
-   $biomaterial = factory('chado.biomaterial')->create([]);
+   $biomaterial = factory('chado.biomaterial')->create();
 
+   var_dump($cvterm->cvterm_id);
+   
     $query = db_insert('chado.biomaterialprop')
       ->fields([
         'biomaterial_id' => $biomaterial->biomaterial_id,
