@@ -2,15 +2,14 @@
 
 namespace Tests;
 
+use StatonLab\TripalTestSuite\DBTransaction;
 use StatonLab\TripalTestSuite\TripalTestCase;
 use \tripal_curator\Chado_property;
 
-//some reading for organizing and annotating tests
-//https://stackoverflow.com/questions/8313283/phpunit-best-practices-to-organize-tests
-//https://jtreminio.com/2013/03/unit-testing-tutorial-introduction-to-phpunit/
-
 class ChadoPropertyTest extends TripalTestCase {
 
+
+  use DBTransaction;
 
   public $cvterm_test;
 
@@ -20,6 +19,7 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   protected function setUp() {
+    parent::setUp();
 
     $cvterm = tripal_insert_cvterm(
       [
@@ -31,11 +31,9 @@ class ChadoPropertyTest extends TripalTestCase {
       ]
     );
 
-
     $this->cvterm_test = $cvterm;
 
     $property = new Chado_property();
-
 
     $query = [
       'name' => 'comment',
@@ -47,15 +45,13 @@ class ChadoPropertyTest extends TripalTestCase {
     $property->set_cvtermprop_search($cvprop_term->cvterm_id);
     $this->property = $property;
 
-
     //create a biomaterial that will be not have a cvalue
 
-    //insert a fake biomaterial
-    $biomaterial_id = tripal_biomaterial_create_biomaterial("Tripal Curator blank cvalue", NULL, NULL, NULL, NULL, NULL);
+    $biomaterial = factory('chado.biomaterial')->create();
 
     $query = db_insert('chado.biomaterialprop')
       ->fields([
-        'biomaterial_id' => $biomaterial_id,
+        'biomaterial_id' => $biomaterial->biomaterial_id,
         "type_id" => $cvterm->cvterm_id,
         "value" => "No cvalue!",
         'cvalue_id' => NULL,
@@ -83,6 +79,10 @@ class ChadoPropertyTest extends TripalTestCase {
   }
 
 
+  /**
+   * Test that get_table_count works as intended.
+   *
+   */
   public function test_chadoprop_count_specific() {
 
     $count = $this->property->get_table_count("cvtermprop");
@@ -105,14 +105,6 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->assertNotEmpty($count);
 
     $this->property->set_cvtermprop_search($this->cvterm_term_existing);//specify all tables again...
-
-  }
-
-  public function testremap_property_all() {
-    $this->property->remap_property_all($this->cvterm_test->cvterm_id);
-
-    $this->assertEquals($this->cvterm_test->cvterm_id, $this->property->get_type_id());
-    $this->assertNotEmpty($this->property->get_props());
 
   }
 
@@ -140,27 +132,5 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->assertNull($prop->cvalue_id, "Property retrieved from build_blank_cvalues has non-null cvalue_id");
 
   }
-
-
-  protected function tearDown() {
-
-    $values = ['name' => 'Tripal Curator blank cvalue'];
-    chado_delete_record('biomaterial', $values);
-
-    $cvterm_existing = $this->cvterm_existing;
-    $cvterm_test = $this->cvterm_test;
-
-
-    //do another sweep for properties that we acciddentally changed to the test prop.
-    $clean_property = new Chado_property();
-    $clean_property->set_cvtermprop_search($cvterm_test->cvterm_id);
-    $clean_property->remap_property_all($cvterm_existing->cvterm_id);
-
-
-    $values = ['cvterm_id' => $cvterm_test->cvterm_id];
-    chado_delete_record('cvterm', $values);
-
-  }
-
 
 }

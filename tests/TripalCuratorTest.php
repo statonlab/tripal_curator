@@ -3,11 +3,13 @@
 namespace Tests;
 
 use StatonLab\TripalTestSuite\TripalTestCase;
+use StatonLab\TripalTestSuite\DBTransaction;
 
-class TripalCuratorTest extends TripalTestCase
-{
+class TripalCuratorTest extends TripalTestCase {
 
-  public function test_property_tables_returns_prop_tables_only(){
+  use DBTransaction;
+
+  public function test_property_tables_returns_prop_tables_only() {
     $tables = tripal_curator_get_property_tables();
     $this->assertNotEmpty($tables);
 
@@ -16,8 +18,8 @@ class TripalCuratorTest extends TripalTestCase
 
   }
 
-  public function test_stringreplace_finds_basetable_from_proptable(){
-    $string="biomaterialprop";
+  public function test_stringreplace_finds_basetable_from_proptable() {
+    $string = "biomaterialprop";
     $expected = "biomaterial";
     $new_string = tripal_curator_str_lreplace("prop", "", $string);
 
@@ -25,7 +27,7 @@ class TripalCuratorTest extends TripalTestCase
 
   }
 
-  public function test_fetch_props_for_prop_table_finds_properties_if_prop_table(){
+  public function test_fetch_props_for_prop_table_finds_properties_if_prop_table() {
     $table = "cvtermprop";
     $props = tripal_curator_fetch_props_for_prop_table($table);
     $this->assertNotEmpty($props);
@@ -35,13 +37,11 @@ class TripalCuratorTest extends TripalTestCase
   }
 
 
-  public function test_tripal_curator_get_property_tables_with_cvalues(){
+  public function test_tripal_curator_get_property_tables_with_cvalues() {
 
     $this->assertTrue(db_field_exists(tripal_curator_chadofy("biomaterialprop"), 'cvalue_id'), "cvalue_id not set up on Biomaterialprop");  //Need to add this column if not present.
 
     $list = tripal_curator_get_property_tables_with_cvalues();
     $this->assertNotEmpty($list);
   }
-
-
 }
