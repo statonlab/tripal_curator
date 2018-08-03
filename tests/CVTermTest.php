@@ -7,30 +7,29 @@ use \tripal_curator\Cvterm;
 
 class CVTermTest extends TripalTestCase {
 
-//Fake CVterm for testing
+  //Fake CVterm for testing
   public $cvterm;
 
   public function setUp() {
     parent::setUp();
 
     //build fake cvterm
-    $cvterm =  tripal_insert_cvterm(
-      array(
+    $cvterm = tripal_insert_cvterm(
+      [
         'name' => 'Curator Test',
         'definition' => 'A test CVterm.  Should be deleted in test.',
         'cv_name' => 'tripal',
         'is_relationship' => 0,
-        'db_name' => 'tripal'
-      )
+        'db_name' => 'tripal',
+      ]
     );
 
     $this->cvterm = $cvterm->cvterm_id;
 
   }
 
-  public function testTrueIsTrue()
-  {
-    $foo = true;
+  public function testTrueIsTrue() {
+    $foo = TRUE;
     $this->assertTrue($foo);
 
   }
@@ -39,7 +38,7 @@ class CVTermTest extends TripalTestCase {
 
     $cvterm_id = $this->cvterm;
 
-    $property  = new Cvterm();
+    $property = new Cvterm();
     $property->set_id($cvterm_id);
 
     $this->assertInstanceOf(Cvterm::class, $property);
@@ -52,7 +51,7 @@ class CVTermTest extends TripalTestCase {
 
 
     //clean up
-    $values = array('cvterm_id' => $cvterm->cvterm_id);
+    $values = ['cvterm_id' => $cvterm->cvterm_id];
     chado_delete_record('cvterm', $values);
 
   }
@@ -61,7 +60,7 @@ class CVTermTest extends TripalTestCase {
   public function tearDown() {
     $cvterm = $this->cvterm;
     //clean up
-    $values = array('cvterm_id' => $cvterm->cvterm_id);
+    $values = ['cvterm_id' => $cvterm->cvterm_id];
     chado_delete_record('cvterm', $values);
   }
 

@@ -47,9 +47,7 @@ class ChadoPropertyTest extends TripalTestCase {
 
     //create a biomaterial that will be not have a cvalue
 
-   $biomaterial = factory('chado.biomaterial')->create();
-
-   var_dump($cvterm->cvterm_id);
+    $biomaterial = factory('chado.biomaterial')->create();
 
     $query = db_insert('chado.biomaterialprop')
       ->fields([

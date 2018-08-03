@@ -10,14 +10,14 @@ use StatonLab\TripalTestSuite\DBTransaction;
 class CVTest extends TripalTestCase {
 
   use DBTransaction;
-  //Fake CVterm for testing
+
   public $CV;
 
   public function setUp() {
 
     $CV = new CV;
 
-//We use this cv for testing because it's included in the chado install, linked to properties.
+    //We use this cv for testing because it's included in the chado install, linked to properties.
     $cv_record = tripal_get_cv(['name' => 'cvterm_property_type']);
     $CV->set_id($cv_record->cv_id);
     $this->CV = $CV;
@@ -37,9 +37,10 @@ class CVTest extends TripalTestCase {
       $this->assertObjectHasAttribute("value", $term, "there was no value key for the term object.");
     }
   }
+
   public function test_CV_returns_prop_tables_on_init() {
     $CV = $this->CV;
-    $tables =$CV->get_prop_tables();
+    $tables = $CV->get_prop_tables();
 
     $this->assertNotEmpty($tables, "The get_prop_tables() method failed to return property tables containing the CV (cvterm_property_type).");
 
@@ -49,7 +50,7 @@ class CVTest extends TripalTestCase {
 
     $CV = $this->CV;
 
-    $tables =$CV->get_prop_tables();
+    $tables = $CV->get_prop_tables();
 
     $terms = $CV->get_terms_specific([$tables[0]]);
 
