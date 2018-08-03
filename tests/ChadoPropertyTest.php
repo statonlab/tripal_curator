@@ -6,10 +6,6 @@ use StatonLab\TripalTestSuite\DBTransaction;
 use StatonLab\TripalTestSuite\TripalTestCase;
 use \tripal_curator\Chado_property;
 
-//some reading for organizing and annotating tests
-//https://stackoverflow.com/questions/8313283/phpunit-best-practices-to-organize-tests
-//https://jtreminio.com/2013/03/unit-testing-tutorial-introduction-to-phpunit/
-
 class ChadoPropertyTest extends TripalTestCase {
 
 
@@ -54,7 +50,7 @@ class ChadoPropertyTest extends TripalTestCase {
    $biomaterial = factory('chado.biomaterial')->create();
 
    var_dump($cvterm->cvterm_id);
-   
+
     $query = db_insert('chado.biomaterialprop')
       ->fields([
         'biomaterial_id' => $biomaterial->biomaterial_id,
@@ -85,6 +81,10 @@ class ChadoPropertyTest extends TripalTestCase {
   }
 
 
+  /**
+   * Test that get_table_count works as intended.
+   *
+   */
   public function test_chadoprop_count_specific() {
 
     $count = $this->property->get_table_count("cvtermprop");
@@ -109,14 +109,6 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->property->set_cvtermprop_search($this->cvterm_term_existing);//specify all tables again...
 
   }
-
-//  public function testremap_property_all() {
-//    $this->property->remap_property_all($this->cvterm_test->cvterm_id);
-//
-//    $this->assertEquals($this->cvterm_test->cvterm_id, $this->property->get_type_id());
-//    $this->assertNotEmpty($this->property->get_props());
-//
-//  }
 
 
   public function test_build_blank_cvalues_finds_properties() {
