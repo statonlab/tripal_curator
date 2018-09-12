@@ -286,19 +286,26 @@ class Chado_property {
    *
    * @return array | Returns an array of the properties that match the regexp.
    */
-  public function set_split_regexp($regexp){
+  public function match_records_against_regexp($regexp){
     $matched_records = [];
 
-    var_dump($this->properties);
+    $tables = $this->properties;
 
-    $props = $this->properties;
+    foreach ($tables as $table => $props) {
+      $table_matches  = [];
 
-    foreach ($props as $prop){
+      foreach ($props as $prop){
 
-      $match = preg_match($regexp, $props);
+        $match = preg_match($regexp, $prop->value);
 
+        if ($match){
+          $table_matches[] = $prop;
+        }
+      }
+      if (!empty($table_matches)){
+        $matched_records[$table] = $table_matches;
+      }
     }
-
     return $matched_records;
   }
 
