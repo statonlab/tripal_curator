@@ -201,7 +201,6 @@ class ChadoPropertyTest extends TripalTestCase {
   }
 
   /**
-   * @group wip
    */
   public function testRegexpMatcher(){
 
@@ -227,8 +226,32 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->assertArrayHasKey('biomaterialprop', $qualifiers);
     $bmats = $qualifiers['biomaterialprop'];
 
-
     $this->assertEquals(2, count($bmats));
+
+  }
+
+  /**
+   * @group wip
+   */
+  public function testSplit_against_regexp(){
+
+    $args =  $this->create_test_props();
+    $cv = $args['cv'];
+    $properties = $args['props'];
+    $cvterm = $args['cvterm'];
+
+
+    $property = new Chado_property();
+
+    $tables = $property->set_cvtermprop_search($cvterm->cvterm_id);
+
+    $props = $property->get_props();
+
+    //Based on the create_test_props, we have two props with a comma for value.
+    //'four hours, 100 degrees', 'six days, 10 degrees'
+    //So we're hoping to return these two
+
+    $new_props = $property->split_against_regexp('/,.*/');
 
   }
 

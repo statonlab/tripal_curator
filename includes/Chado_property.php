@@ -104,7 +104,9 @@ class Chado_property {
 
 
   /**
-   * Becaus we aren't specifying a type_id (might have multiple types) it's easier to have a separate less DRY command for searching for cvalues.
+   * Becaus we aren't specifying a type_id (might have multiple types) it's
+   * easier to have a separate less DRY command for searching for cvalues.
+   *
    * @param $tables
    */
 
@@ -124,9 +126,10 @@ class Chado_property {
       $query = db_select($t, $table);
       $query->fields($table, $table_fields);
 
-      if (!$type_id){
+      if (!$type_id) {
         $query->isNull('cvalue_id');
-      } else {
+      }
+      else {
         $query->condition('cvalue_id', $type_id);
       }
 
@@ -146,7 +149,7 @@ class Chado_property {
 
   }
 
-    /**
+  /**
    * Method for populating or re-populating the class.
    *
    * @param $tables
@@ -282,31 +285,69 @@ class Chado_property {
   /**
    *
    *
-   * @param $regexp  | A  regular expression string.  It should uniquely match the property one wants to split off.
+   * @param $regexp | A  regular expression string.  It should uniquely match
+   *   the property one wants to split off.
    *
    * @return array | Returns an array of the properties that match the regexp.
    */
-  public function match_records_against_regexp($regexp){
+  public function match_records_against_regexp($regexp) {
     $matched_records = [];
 
     $tables = $this->properties;
 
     foreach ($tables as $table => $props) {
-      $table_matches  = [];
+      $table_matches = [];
 
-      foreach ($props as $prop){
+      foreach ($props as $prop) {
 
         $match = preg_match($regexp, $prop->value);
 
-        if ($match){
+        if ($match) {
           $table_matches[] = $prop;
         }
       }
-      if (!empty($table_matches)){
+      if (!empty($table_matches)) {
         $matched_records[$table] = $table_matches;
       }
     }
+    $this->properties = $matched_records;
     return $matched_records;
   }
 
+
+
+  public function split_against_regexp($regexp, $trim_regexp = NULL) {
+
+    $to_split = $this->match_records_against_regexp($regexp);
+
+    foreach ($to_split as $table => $props) {
+
+      foreach ($props as $prop) {
+
+        $matches = [];
+        $match = preg_match($regexp, $prop->value, $matches);
+
+        if ($match) {
+
+          if ($trim_regexp){
+
+            $trim_matches = [];
+
+            preg_match($regexp, $prop->value, $trim_matches);
+
+            var_dump($matches);
+
+          }
+          var_dump($matches);
+
+          //create new property from match
+
+          //update old property minus match
+        }
+
+      }
+
+    }
+
+  }
 }
