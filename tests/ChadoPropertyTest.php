@@ -78,7 +78,15 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   public function test_chadoprop_count_all() {
-    $count = $this->property->get_total();
+    $args =  $this->create_test_props();
+    $cv = $args['cv'];
+    $properties = $args['props'];
+    $cvterms = $args['cvterms'];
+    $term = $cvterms[0];
+
+    $property = new Chado_property();
+
+    $count = $property->get_total();
     $this->assertNotNull($count);
 
   }
@@ -129,6 +137,8 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   public function test_build_blank_cvalues_finds_properties() {
+
+    $this->create_test_props();
     $temp_property = new Chado_property();
 
     $result = $temp_property->build_blank_cvalues();
@@ -206,7 +216,6 @@ class ChadoPropertyTest extends TripalTestCase {
     $tables = $property->set_cvtermprop_search($term->cvterm_id);
 
     $props = $property->get_props();
-    var_dump($props);
 
   }
 

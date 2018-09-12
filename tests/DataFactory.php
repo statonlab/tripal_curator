@@ -120,13 +120,13 @@ Factory::define('chado.biomaterial', function (Faker\Generator $faker) {
 
 Factory::define('chado.biomaterialprop', function (Faker\Generator $faker) {
   return [
-
     'biomaterial_id' => factory('chado.biomaterial')->create()->biomaterial_id,
     'type_id' => factory('chado.cvterm')->create()->cvterm_id,
     'value' => $faker->word,
     'rank' => 0
   ];
 });
+
 
 Factory::define('chado.featuremap', function (Faker\Generator $faker) {
   return [
