@@ -41,6 +41,7 @@ class ChadoPropertyTest extends TripalTestCase {
     ];
 
     $cvprop_term = tripal_get_cvterm($query);
+
     $this->cvterm_existing = $cvprop_term;
     $property->set_cvtermprop_search($cvprop_term->cvterm_id);
     $this->property = $property;

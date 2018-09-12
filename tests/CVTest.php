@@ -11,21 +11,39 @@ class CVTest extends TripalTestCase {
 
   use DBTransaction;
 
-  public $CV;
 
-  public function setUp() {
+  private function create_CV_and_props(){
+    $cv = factory('chado.cv')->create();
 
-    $CV = new CV;
+    $cvterms = factory('chado.cvterm', 5)
+      ->create(['cv_id' => $cv->cv_id ]);
 
-    //We use this cv for testing because it's included in the chado install, linked to properties.
-    $cv_record = tripal_get_cv(['name' => 'cvterm_property_type']);
-    $CV->set_id($cv_record->cv_id);
-    $this->CV = $CV;
+    $biomaterial = factory('chado.biomaterial')
+      ->create();
+
+    $props = [];
+
+    foreach ($cvterms as $cvterm) {
+      $prop = factory('chado.biomaterialprop')
+        ->create([
+          'type_id' => $cvterm->cvterm_id,
+          'biomaterial_id' => $biomaterial->biomaterial_id]);
+    $props[] = $prop;
+    }
+
+    return [
+      'cv' => $cv,
+      'props' => $props
+    ];
 
   }
 
+
   public function test_CV_inits_and_gets_terms() {
-    $CV = $this->CV;
+    $vals = $this->create_CV_and_props();
+    $cv_id = $vals['cv']->cv_id;
+    $CV = new CV;
+    $CV->set_id($cv_id);
     $terms = $CV->get_terms();
     $this->assertNotNull($terms);
 
@@ -38,8 +56,15 @@ class CVTest extends TripalTestCase {
     }
   }
 
+  /**
+   *
+   */
   public function test_CV_returns_prop_tables_on_init() {
-    $CV = $this->CV;
+    $vals = $this->create_CV_and_props();
+    $cv_id = $vals['cv']->cv_id;
+    $CV = new CV;
+    $CV->set_id($cv_id);
+
     $tables = $CV->get_prop_tables();
 
     $this->assertNotEmpty($tables, "The get_prop_tables() method failed to return property tables containing the CV (cvterm_property_type).");
@@ -48,7 +73,10 @@ class CVTest extends TripalTestCase {
 
   public function test_CV_returns_specific_terms() {
 
-    $CV = $this->CV;
+    $vals = $this->create_CV_and_props();
+    $cv_id = $vals['cv']->cv_id;
+    $CV = new CV;
+    $CV->set_id($cv_id);
 
     $tables = $CV->get_prop_tables();
 
