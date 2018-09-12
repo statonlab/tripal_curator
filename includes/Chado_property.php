@@ -279,4 +279,27 @@ class Chado_property {
     return $this->type_id;
   }
 
+  /**
+   *
+   *
+   * @param $regexp  | A  regular expression string.  It should uniquely match the property one wants to split off.
+   *
+   * @return array | Returns an array of the properties that match the regexp.
+   */
+  public function set_split_regexp($regexp){
+    $matched_records = [];
+
+    var_dump($this->properties);
+
+    $props = $this->properties;
+
+    foreach ($props as $prop){
+
+      $match = preg_match($regexp, $props);
+
+    }
+
+    return $matched_records;
+  }
+
 }

@@ -45,7 +45,7 @@ Factory::define('chado.cvterm', function (Faker\Generator $faker) {
   return [
     'cv_id' => factory('chado.cv')->create()->cv_id,
     'dbxref_id' => factory('chado.dbxref')->create()->dbxref_id,
-    'name' => $faker->unique()->word,
+    'name' => $faker->unique()->word.uniqid(),
     'definition' => $faker->text,
     'is_obsolete' => 0,
     'is_relationshiptype' => 0,
@@ -110,7 +110,7 @@ Factory::define('chado.biomaterial', function (Faker\Generator $faker) {
     'taxon_id' => factory('chado.organism')->create()->organism_id,
     'biosourceprovider_id' => factory('chado.contact')->create()->contact_id,
     'dbxref_id' => factory('chado.dbxref')->create()->dbxref_id,
-    'name' => $faker->unique()->word,
+    'name' => $faker->unique()->word.uniqid(),
     'description' => $faker->text,
 
   ];

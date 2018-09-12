@@ -201,6 +201,7 @@ class ChadoPropertyTest extends TripalTestCase {
   }
 
   /**
+   * @group wip
    */
   public function testSplitter(){
 
@@ -216,6 +217,12 @@ class ChadoPropertyTest extends TripalTestCase {
     $tables = $property->set_cvtermprop_search($term->cvterm_id);
 
     $props = $property->get_props();
+
+    //Based on the create_test_props, we have two props with a comma for value.
+    //'four hours, 100 degrees', 'six days, 10 degrees'
+    //So we're hoping to return these two
+
+    $qualifiers = $property->set_split_regexp(',.*');
 
   }
 
