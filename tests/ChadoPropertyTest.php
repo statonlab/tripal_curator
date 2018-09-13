@@ -201,6 +201,7 @@ class ChadoPropertyTest extends TripalTestCase {
   }
 
   /**
+   * @group wip
    */
   public function testRegexpMatcher(){
 
@@ -219,8 +220,7 @@ class ChadoPropertyTest extends TripalTestCase {
     //Based on the create_test_props, we have two props with a comma for value.
     //'four hours, 100 degrees', 'six days, 10 degrees'
     //So we're hoping to return these two
-
-    $qualifiers = $property->match_records_against_regexp('/,.*/');
+    $qualifiers = $property->match_records_against_regexp('/, (.*)/');
     $this->assertNotEmpty($qualifiers);
 
     $this->assertArrayHasKey('biomaterialprop', $qualifiers);
@@ -228,30 +228,57 @@ class ChadoPropertyTest extends TripalTestCase {
 
     $this->assertEquals(2, count($bmats));
 
+    $summary = $property->get_split_summary();
+
+    $this->assertArrayHasKey('biomaterialprop', $summary);
+    $results = $summary['biomaterialprop'];
+    $this->assertArrayHasKey('four hours, 100 degrees', $results);
+    $to_test = $results['four hours, 100 degrees'];
+    $this->assertArrayHasKey('child', $to_test);
+    $this->assertArrayHasKey('parent', $to_test);
+    $this->assertEquals('100 degrees', $to_test['child']);
+    $this->assertEquals('four hours', $to_test['parent']);
   }
+
+
 
   /**
    * @group wip
    */
-  public function testSplit_against_regexp(){
+  public function test_split_term_by_value_regexp(){
 
     $args =  $this->create_test_props();
     $cv = $args['cv'];
     $properties = $args['props'];
     $cvterm = $args['cvterm'];
 
-
     $property = new Chado_property();
-
     $tables = $property->set_cvtermprop_search($cvterm->cvterm_id);
-
     $props = $property->get_props();
 
     //Based on the create_test_props, we have two props with a comma for value.
     //'four hours, 100 degrees', 'six days, 10 degrees'
     //So we're hoping to return these two
+    $qualifiers = $property->match_records_against_regexp('/, (.*)/');
 
-    $new_props = $property->split_against_regexp('/,.*/');
+    $summary = $property->get_split_summary();
+    $this->assertNotEmpty($summary);
+
+    $child_cvterm = factory('chado.cvterm')->create();
+
+    $property->set_child_term($child_cvterm->cvterm_id);
+
+    $property->split_term_by_value_regexp();
+
+    $children = db_select('chado.biomaterialprop', 'bp')
+    ->fields('bp', ['biomaterialprop_id'])
+    ->condition('type_id', $child_cvterm->cvterm_id)
+      ->condition('value', '100 degrees')
+      ->execute()->fetchAll();
+
+    $this->assertNotEmpty($children);
+
+    //TODO: test that parent is correct too.
 
   }
 

@@ -3,6 +3,8 @@
 namespace tripal_curator;
 
 
+use PHPUnit\Runner\Exception;
+
 class Chado_property {
 
 
@@ -47,6 +49,25 @@ class Chado_property {
    */
   private $property_fields_to_include = [];
 
+
+  /**
+   * A summary of the proposed regexp split property.  Of the form
+   * [ $table => [ $value => [
+   *  "parent" => new parent value (child excised)
+   *  "child" => new child value (match of Regexp)
+   *  ] ] ]
+   *
+   * @var array
+   */
+  private $split_summary = [];
+
+
+  /**
+   * If splitting a property, this is the "destintation" term for the child
+   *
+   * @var string
+   */
+  private $child_term_id = NULL;
 
   /**
    * Initialize the class with a type_id.
@@ -293,6 +314,8 @@ class Chado_property {
   public function match_records_against_regexp($regexp) {
     $matched_records = [];
 
+    $match_summary = [];
+
     $tables = $this->properties;
 
     foreach ($tables as $table => $props) {
@@ -300,23 +323,50 @@ class Chado_property {
 
       foreach ($props as $prop) {
 
-        $match = preg_match($regexp, $prop->value);
+        $matches = [];
+        $match = preg_match($regexp, $prop->value, $matches);
 
         if ($match) {
+
+          unset($matches[0]);
+          if (count($matches) > 1){
+
+            print("warning: Too many matches for proprerty: of type ".  $prop->type_id . "with value " . $prop->value . "\n");
+            //TODO: proper exception handling.
+            continue;
+            }
+            $child_match = $matches[1];
+
           $table_matches[] = $prop;
+
+        $new_parent =   preg_replace($regexp, '', $prop->value);
+        $id = $prop->type_id;
+
+        $match_summary[$table][$prop->value] = [
+          'parent' => $new_parent,
+          'child' => $child_match
+        ];
+
         }
       }
       if (!empty($table_matches)) {
         $matched_records[$table] = $table_matches;
       }
     }
+    $this->split_summary = $match_summary;
     $this->properties = $matched_records;
     return $matched_records;
   }
 
 
 
-  public function split_against_regexp($regexp, $trim_regexp = NULL) {
+  public function set_child_term($cvterm_id){
+
+    $this->child_term_id = $cvterm_id;
+
+  }
+
+  public function split_term_by_value_regexp() {
 
     $to_split = $this->match_records_against_regexp($regexp);
 
@@ -329,25 +379,39 @@ class Chado_property {
 
         if ($match) {
 
-          if ($trim_regexp){
+          $child = $matches[0];
 
-            $trim_matches = [];
+          $new_parent = 'remove the match from the parent';
 
-            preg_match($regexp, $prop->value, $trim_matches);
-
-            var_dump($matches);
-
+          if ($trim_regexp) {
+            $child = preg_replace($trim_regexp, '', $child);
           }
-          var_dump($matches);
 
-          //create new property from match
+          //create new child property from match
 
-          //update old property minus match
+          $this->create_new_property($prop, $child, $child_cvterm_id);
+
+          //update old parent property minus match
+
+          $this->update_property($prop, $new_parent);
         }
 
       }
 
     }
+
+  }
+
+
+  public function get_split_summary(){
+    return $this->split_summary;
+  }
+
+  private function create_new_property($prop, $child, $child_cvterm_id) {
+
+  }
+
+  private function update_property($prop, $new_parent) {
 
   }
 }
