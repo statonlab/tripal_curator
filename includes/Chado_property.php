@@ -191,6 +191,14 @@ class Chado_property {
 
       $table_fields = $fields;
       array_push($table_fields, $table . '_id');
+
+      //also get root FK column ie thing_id from thingprop
+
+      $base_id = str_replace("prop", "", $table);
+      $base_id = $base_id . "_id";
+
+      $table_fields[] = $base_id;
+
       $t = tripal_curator_chadofy($table);
       $query = db_select($t, $table);
       $query->fields($table, $table_fields);
@@ -329,23 +337,23 @@ class Chado_property {
         if ($match) {
 
           unset($matches[0]);
-          if (count($matches) > 1){
+          if (count($matches) > 1) {
 
-            print("warning: Too many matches for proprerty: of type ".  $prop->type_id . "with value " . $prop->value . "\n");
+            print("warning: Too many matches for proprerty: of type " . $prop->type_id . "with value " . $prop->value . "\n");
             //TODO: proper exception handling.
             continue;
-            }
-            $child_match = $matches[1];
+          }
+          $child_match = $matches[1];
 
           $table_matches[] = $prop;
 
-        $new_parent =   preg_replace($regexp, '', $prop->value);
-        $id = $prop->type_id;
+          $new_parent = preg_replace($regexp, '', $prop->value);
+          $id = $prop->type_id;
 
-        $match_summary[$table][$prop->value] = [
-          'parent' => $new_parent,
-          'child' => $child_match
-        ];
+          $match_summary[$table][$prop->value] = [
+            'parent' => $new_parent,
+            'child' => $child_match,
+          ];
 
         }
       }
@@ -355,12 +363,12 @@ class Chado_property {
     }
     $this->split_summary = $match_summary;
     $this->properties = $matched_records;
+
     return $matched_records;
   }
 
 
-
-  public function set_child_term($cvterm_id){
+  public function set_child_term($cvterm_id) {
 
     $this->child_term_id = $cvterm_id;
 
@@ -368,42 +376,56 @@ class Chado_property {
 
   public function split_term_by_value_regexp() {
 
-    $to_split = $this->match_records_against_regexp($regexp);
+    $properties = $this->properties;
+    $child_term = $this->child_term_id;
+    $split_plan = $this->split_summary;
 
-    foreach ($to_split as $table => $props) {
+    foreach ($properties as $table => $props) {
 
       foreach ($props as $prop) {
 
-        $matches = [];
-        $match = preg_match($regexp, $prop->value, $matches);
+        $lookup = $split_plan[$table][$prop->value];
+        $new_child = $lookup['child'];
+        $new_parent = $lookup['parent'];
+        $parent_type = $prop->type_id;
 
-        if ($match) {
+        $key = $table . "_id";
 
-          $child = $matches[0];
+        $base_table = str_replace("prop", "", $table);
 
-          $new_parent = 'remove the match from the parent';
 
-          if ($trim_regexp) {
-            $child = preg_replace($trim_regexp, '', $child);
-          }
+        $record_id = $prop->$key;
 
-          //create new child property from match
+        $record = ['table' => $base_table, 'id' => $record_id];
 
-          $this->create_new_property($prop, $child, $child_cvterm_id);
+        $chado_property = [
+          'type_id' => $child_term,
+          'value' => $new_child,
+        ];
 
-          //update old parent property minus match
+        //not sure if we should update if present or not.  Don't want to accidentally overwrite existing properties.  Maybe it should check if the term is already set and, if so, set the rank to two?
 
-          $this->update_property($prop, $new_parent);
-        }
+        $options = [];
 
+        chado_insert_property($record, $chado_property, $options);
+
+
+        //$record stays the same
+
+        $chado_property = [
+          'type_id' => $parent_type,
+          'value' => $new_parent,
+        ];
+
+        $options = ['update_if_present' => TRUE];
+
+        chado_insert_property($record, $chado_property, $options);
       }
-
     }
-
   }
 
 
-  public function get_split_summary(){
+  public function get_split_summary() {
     return $this->split_summary;
   }
 
