@@ -424,16 +424,7 @@ class Chado_property {
     }
   }
 
-
   public function get_split_summary() {
     return $this->split_summary;
-  }
-
-  private function create_new_property($prop, $child, $child_cvterm_id) {
-
-  }
-
-  private function update_property($prop, $new_parent) {
-
   }
 }
