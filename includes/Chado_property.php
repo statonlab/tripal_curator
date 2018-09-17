@@ -434,4 +434,5 @@ class Chado_property {
     return $this->split_summary;
   }
 
+
 }

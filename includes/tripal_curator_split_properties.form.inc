@@ -23,6 +23,27 @@ function tripal_curator_split_prop_form($form, &$form_state, $cvterm_id) {
   $total_count = $chado_property->get_total();
   $properties = $chado_property->get_props();
 
+  $rows = tripal_curator_split_build_usage_table($properties);
+
+
+  //pagination settings
+  $per_page = 20;
+  // Initialize the pager
+  $current_page = pager_default_initialize(count($rows), $per_page);
+  // Split your list into page sized chunks
+  $chunks = array_chunk($rows, $per_page, TRUE);
+  // Show the appropriate items from the list
+  $output = theme('table', [
+    'header' => ['Value'],
+    'rows' => $chunks[$current_page],
+  ]);
+
+
+  $form['usage'] = ['#type' => 'fieldset', '#title' => 'Property values for this term (all tables)', '#collapsible' => TRUE];
+  $form['usage']['table'] = [
+    '#markup' => $output,
+  ];
+
   if ($total_count === 0) {
     return ($form);
   }
@@ -261,4 +282,18 @@ function tripal_curator_split_destination_property_callback($form, &$form_state)
 
 function tripal_curatori_is_regexp($string) {
   return @preg_match($string, '') !== FALSE;
+}
+
+function tripal_curator_split_build_usage_table($props) {
+
+
+  $usage = [];
+
+  foreach ($props as $table => $properties) {
+    foreach ($properties as $prop) {
+      $value = $prop->value;
+      $usage[] = [$value];
+    }
+  }
+  return $usage;
 }
