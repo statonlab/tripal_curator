@@ -12,44 +12,44 @@ class ChadoPropertyTest extends TripalTestCase {
 
   protected function setUp() {
     parent::setUp();
-//
-//    $cvterm = tripal_insert_cvterm(
-//      [
-//        'name' => 'Curator Test',
-//        'definition' => 'A test CVterm.  Should be deleted in test.',
-//        'cv_name' => 'tripal',
-//        'is_relationship' => 0,
-//        'db_name' => 'tripal',
-//      ]
-//    );
-//
-//    $this->cvterm_test = $cvterm;
-//
-//    $property = new Chado_property();
-//
-//    $query = [
-//      'name' => 'comment',
-//      'cv_id' => ['name' => 'cvterm_property_type'],
-//    ];
-//
-//    $cvprop_term = tripal_get_cvterm($query);
-//
-//    $this->cvterm_existing = $cvprop_term;
-//    $property->set_cvtermprop_search($cvprop_term->cvterm_id);
-//    $this->property = $property;
-//
-//    //create a biomaterial that will be not have a cvalue
-//
-//    $biomaterial = factory('chado.biomaterial')->create();
-//
-//    $query = db_insert('chado.biomaterialprop')
-//      ->fields([
-//        'biomaterial_id' => $biomaterial->biomaterial_id,
-//        "type_id" => $cvterm->cvterm_id,
-//        "value" => "No cvalue!",
-//        'cvalue_id' => NULL,
-//      ]);
-//    $result = $query->execute();
+    //
+    //    $cvterm = tripal_insert_cvterm(
+    //      [
+    //        'name' => 'Curator Test',
+    //        'definition' => 'A test CVterm.  Should be deleted in test.',
+    //        'cv_name' => 'tripal',
+    //        'is_relationship' => 0,
+    //        'db_name' => 'tripal',
+    //      ]
+    //    );
+    //
+    //    $this->cvterm_test = $cvterm;
+    //
+    //    $property = new Chado_property();
+    //
+    //    $query = [
+    //      'name' => 'comment',
+    //      'cv_id' => ['name' => 'cvterm_property_type'],
+    //    ];
+    //
+    //    $cvprop_term = tripal_get_cvterm($query);
+    //
+    //    $this->cvterm_existing = $cvprop_term;
+    //    $property->set_cvtermprop_search($cvprop_term->cvterm_id);
+    //    $this->property = $property;
+    //
+    //    //create a biomaterial that will be not have a cvalue
+    //
+    //    $biomaterial = factory('chado.biomaterial')->create();
+    //
+    //    $query = db_insert('chado.biomaterialprop')
+    //      ->fields([
+    //        'biomaterial_id' => $biomaterial->biomaterial_id,
+    //        "type_id" => $cvterm->cvterm_id,
+    //        "value" => "No cvalue!",
+    //        'cvalue_id' => NULL,
+    //      ]);
+    //    $result = $query->execute();
   }
 
 
@@ -62,7 +62,7 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   public function test_set_cvtermprop_search_finds_properties() {
-    $args =  $this->create_test_props();
+    $args = $this->create_test_props();
     $cv = $args['cv'];
     $properties = $args['props'];
     $term = $args['cvterm'];
@@ -77,7 +77,7 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   public function test_chadoprop_count_all() {
-    $args =  $this->create_test_props();
+    $args = $this->create_test_props();
     $cv = $args['cv'];
     $properties = $args['props'];
     $term = $args['cvterm'];
@@ -161,41 +161,48 @@ class ChadoPropertyTest extends TripalTestCase {
   }
 
 
-  private function create_test_props(){
+  private function create_test_props() {
 
     $cv = factory('chado.cv')->create();
 
     $cvterm = factory('chado.cvterm')
-      ->create(['cv_id' => $cv->cv_id ]);
+      ->create(['cv_id' => $cv->cv_id]);
 
     $biomaterials = factory('chado.biomaterial', 5)
       ->create();
 
     $props = [];
 
-    $values = ['a', 'b', 'c', 'four hours, 100 degrees', 'six days, 10 degrees'];
+    $values = [
+      'a',
+      'b',
+      'c',
+      'four hours, 100 degrees',
+      'six days, 10 degrees',
+    ];
 
     $i = 0;
 
-    foreach ($biomaterials as $biomaterial){
+    foreach ($biomaterials as $biomaterial) {
       $value = $values[$i];
 
-        $prop = factory('chado.biomaterialprop')
-          ->create([
-            'type_id' => $cvterm->cvterm_id,
-            'biomaterial_id' => $biomaterial->biomaterial_id,
-            'value' => $value]);
+      $prop = factory('chado.biomaterialprop')
+        ->create([
+          'type_id' => $cvterm->cvterm_id,
+          'biomaterial_id' => $biomaterial->biomaterial_id,
+          'value' => $value,
+        ]);
 
-        $props[] = $prop;
+      $props[] = $prop;
 
-    $i ++;
+      $i++;
     }
 
 
     return [
       'cv' => $cv,
       'cvterm' => $cvterm,
-      'props' => $props
+      'props' => $props,
     ];
 
   }
@@ -203,12 +210,12 @@ class ChadoPropertyTest extends TripalTestCase {
   /**
    * @group wip
    */
-  public function testRegexpMatcher(){
+  public function testRegexpMatcher() {
 
-   $args =  $this->create_test_props();
-   $cv = $args['cv'];
-   $properties = $args['props'];
-   $cvterm = $args['cvterm'];
+    $args = $this->create_test_props();
+    $cv = $args['cv'];
+    $properties = $args['props'];
+    $cvterm = $args['cvterm'];
 
 
     $property = new Chado_property();
@@ -240,14 +247,40 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->assertEquals('four hours', $to_test['parent']);
   }
 
+  /**
+   * Ensure invalid Regexp at least runs
+   *
+   * @group wip
+   */
+  public function testRegexpMatcher_invalid_regexp() {
+
+
+    $args = $this->create_test_props();
+    $cv = $args['cv'];
+    $properties = $args['props'];
+    $cvterm = $args['cvterm'];
+
+
+    $property = new Chado_property();
+
+    $tables = $property->set_cvtermprop_search($cvterm->cvterm_id);
+
+    $props = $property->get_props();
+
+    //Based on the create_test_props, we have two props with a comma for value.
+    //'four hours, 100 degrees', 'six days, 10 degrees'
+    //So we're hoping to return these two
+    $qualifiers = $property->match_records_against_regexp('waffles');
+    $this->assertEmpty($qualifiers);
+
+  }
 
 
   /**
-   * @group wip
    */
-  public function test_split_term_by_value_regexp(){
+  public function test_split_term_by_value_regexp() {
 
-    $args =  $this->create_test_props();
+    $args = $this->create_test_props();
     $cv = $args['cv'];
     $properties = $args['props'];
     $cvterm = $args['cvterm'];
@@ -271,8 +304,8 @@ class ChadoPropertyTest extends TripalTestCase {
     $property->split_term_by_value_regexp();
 
     $children = db_select('chado.biomaterialprop', 'bp')
-    ->fields('bp', ['biomaterialprop_id'])
-    ->condition('type_id', $child_cvterm->cvterm_id)
+      ->fields('bp', ['biomaterialprop_id'])
+      ->condition('type_id', $child_cvterm->cvterm_id)
       ->condition('value', '100 degrees')
       ->execute()->fetchAll();
 

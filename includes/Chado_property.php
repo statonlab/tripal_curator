@@ -339,7 +339,7 @@ class Chado_property {
           unset($matches[0]);
           if (count($matches) > 1) {
 
-            print("warning: Too many matches for proprerty: of type " . $prop->type_id . "with value " . $prop->value . "\n");
+            print("warning: Too many matches for property: of type " . $prop->type_id . "with value " . $prop->value . "\n");
             //TODO: proper exception handling.
             continue;
           }
@@ -427,4 +427,5 @@ class Chado_property {
   public function get_split_summary() {
     return $this->split_summary;
   }
+
 }

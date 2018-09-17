@@ -17,8 +17,20 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
 
   $form['source_cvterm_id'] = [
     '#type' => 'value',
-    '#value' => $type_id
+    '#value' => $type_id,
   ];
+
+
+
+  $split_link = l('Click here to split this property instead.', 'admin/tripal/extension/tripal_curator/split/' . $type_id);
+
+
+
+  $markup = '<p>The form below allows you to change the type_id of this property. '. $split_link . ' </p>';
+
+
+  $form['split'] = ['#type' => 'markup', '#markup' => $markup];
+
 
   ### Display type_id info
 
@@ -27,19 +39,10 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
   $cvterm->set_id($type_id);
   $cvterm_record = $cvterm->get_full();
 
-  //instead, it would be
 
-  // $cvterm = tripal_get_cvterm(array(
-  //'cvterm_id' => $this->cvterm_id,
-  //  ));
+  $box = provide_summary_box($type_id, $cvterm);
 
-  $cvterm_name = $cvterm_record->name;
-  $cvterm_definition = 'Undefined.';
-
-  if (isset($cvterm_record->definition)){
-    $cvterm_definition = $cvterm_record->definition;
-  }
-
+  $form['box'] = $box;
 
   $chado_property = new \tripal_curator\Chado_property();
   $chado_property->set_cvtermprop_search($type_id);
@@ -48,32 +51,10 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
   $properties = $chado_property->get_props();
 
 
-  $info_markup = '<p><b>Name: </b>' . $cvterm_name . '</p>';
-  $info_markup .= '<p><b>Definition: </b>' . $cvterm_definition . '</p>';
-  $info_markup .= '<p><b>Total uses: </b>' . $total_count . '</p>';
-
-  $form['Source Type'] = [
-    '#type' => 'fieldset',
-    '#title' => 'Source CVterm Type',
-    '#description' => 'This is the selected property type.'
-  ];
-
-
-
-  $form['Source Type']['info'] = [
-    '#markup' => $info_markup,
-  ];
-
-
-
-  if ($total_count === 0){
-
-    $form['Source Type']['kill'] = [
-      '#markup' => "No properties utilize this CVterm as their type!",
-    ];
-    return($form);
-
+  if ($total_count === 0) {
+    return ($form);
   }
+
 
   $form['destination_type'] = [
     '#type' => 'fieldset',
@@ -120,7 +101,7 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
     $form['destination_type']['terms_list'] = [
       '#type' => 'fieldset',
       '#title' => t('Matching Terms'),
-      '#description' => t('Please select a destination term.  All properties above will be converted to this property type.')
+      '#description' => t('Please select a destination term.  All properties above will be converted to this property type.'),
     ];
     $match = [
       'name' => $term_name,
@@ -164,7 +145,10 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
     '#title' => 'Curation Type',
     '#type' => 'radios',
     '#description' => 'Curate all properties, or just specific entity types?',
-    '#options' => ['all' => 'All Property Tables', 'select' => 'Select Property Tables'],
+    '#options' => [
+      'all' => 'All Property Tables',
+      'select' => 'Select Property Tables',
+    ],
     '#default_value' => $default_c_type,
     '#ajax' => [
       'callback' => 'tripal_curator_type_callback',
@@ -185,47 +169,49 @@ function tripal_curator_edit_cvterm_type_form($form, &$form_state, $type_id) {
   $curation_scope = isset($form_state['values']['curation_type']) ? $form_state['values']['curation_type'] : $default_c_type;
 
 
-  if ($curation_scope == $default_c_type){
+  if ($curation_scope == $default_c_type) {
     //We're converting all properties
 
     $submit_message = '<p>Submitting this form will convert <b>ALL properties</b> of this type in <b>ALL</b> Chado property tables to teh selected CVterm.  This cannot be undone.</p>';
     $form['div1']['submit_message'] = [
-      '#markup' => $submit_message
+      '#markup' => $submit_message,
     ];
 
   }
 
-  if ($curation_scope == 'select'){
+  if ($curation_scope == 'select') {
     //We're converting select property tables
     $property_tables = [];
 
     foreach ($properties as $table_name => $property) {
       $count = $chado_property->get_table_count($table_name);
 
-      $property_tables[$table_name] = ['name' =>$table_name, 'count' => $count];
+      $property_tables[$table_name] = [
+        'name' => $table_name,
+        'count' => $count,
+      ];
     }
 
 
-    $header = array(
+    $header = [
       'name' => t('Property Table Name'),
       'count' => t('Number of Entries'),
-    );
+    ];
 
     $form['div1']['property_table_select'] = [
       '#type' => 'tableselect',
       '#header' => $header,
       '#options' => $property_tables,
-      '#multiple' => TRUE
+      '#multiple' => TRUE,
     ];
 
   }
 
 
-
-  $form['submit'] = array(
+  $form['submit'] = [
     '#type' => 'submit',
-    '#value' => t('Convert Property Type')
-  );
+    '#value' => t('Convert Property Type'),
+  ];
   return $form;
 }
 
@@ -233,25 +219,25 @@ function tripal_curator_edit_cvterm_type_form_validate($form, &$form_state) {
 
   $values = $form_state['values'];
 
-  $selected_target_cvterm=  null;
+  $selected_target_cvterm = NULL;
 
-  foreach ($values as $value_key => $value){
+  foreach ($values as $value_key => $value) {
 
-    if (preg_match('/term-/', $value_key)){
+    if (preg_match('/term-/', $value_key)) {
 
-      if ($value = "on"){
+      if ($value = "on") {
         $selected_target_cvterm = str_replace('term-', '', $value_key);
       }
     }
   }
 
-  if (!$selected_target_cvterm){
+  if (!$selected_target_cvterm) {
     form_set_error('destination_type', t("You must select a valid destination CVterm. You must press Lookup Term and select a CVterm."));
   }
 
   $convert_type = $values['curation_type'];
 
-  if ($convert_type == 'select'){
+  if ($convert_type == 'select') {
 
     if (!isset($values['property_table_select'])) {
       form_set_error('property_table_select', t("You must select at least one property table if converted selected tables."));
@@ -266,16 +252,16 @@ function tripal_curator_edit_cvterm_type_form_validate($form, &$form_state) {
 function tripal_curator_edit_cvterm_type_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   $convert_type = $values['curation_type'];
-$selected_tables = null;
-  if ($convert_type == 'select'){
+  $selected_tables = NULL;
+  if ($convert_type == 'select') {
     $selected_tables = $values['property_table_select'];
   }
 
-  foreach ($values as $value_key => $value){
+  foreach ($values as $value_key => $value) {
 
-    if (preg_match('/term-/', $value_key)){
+    if (preg_match('/term-/', $value_key)) {
 
-      if ($value = "on"){
+      if ($value = "on") {
         $selected_target_cvterm = str_replace('term-', '', $value_key);
       }
     }
@@ -288,7 +274,7 @@ $selected_tables = null;
 
   $chado_property->set_cvtermprop_search($source_cvterm);
 
-  if ($selected_tables){
+  if ($selected_tables) {
     $chado_property->specify_tables($selected_tables);
   }
 
@@ -297,11 +283,11 @@ $selected_tables = null;
 
 }
 
-function tripal_curator_type_callback($form, &$form_state){
+function tripal_curator_type_callback($form, &$form_state) {
 
   return $form['div1'];
 }
 
-function tripal_curator_destination_property_callback($form, &$form_state){
+function tripal_curator_destination_property_callback($form, &$form_state) {
   return $form['destination_type'];
 }

@@ -1,5 +1,12 @@
 <?php
 
+
+/**
+ * @param $cvterm_id
+ * @param $term_object
+ *
+ * @return array
+ */
 function provide_summary_box($cvterm_id, $term_object){
 
   $form = [];
@@ -51,12 +58,9 @@ function provide_summary_box($cvterm_id, $term_object){
   ];
 
 
-
   $form['Source Type']['info'] = [
     '#markup' => $info_markup,
   ];
-
-
 
   if ($total_count === 0){
 
@@ -66,5 +70,7 @@ function provide_summary_box($cvterm_id, $term_object){
     return($form);
 
   }
+
+  return $form;
 
 }

@@ -215,3 +215,18 @@ function tripal_curator_split_property_add_child(&$form, $form_state, $parent = 
   ];
   // Create the cvterm browser
 }
+
+function tripal_curator_split_terms($parent_cvterm, $child_cvterm, $regexp){
+
+  $chado_property = new \tripal_curator\Chado_property();
+  $chado_property->set_cvtermprop_search($parent_cvterm);
+  $chado_property->set_child_term($child_cvterm);
+  $results = $chado_property->match_records_against_regexp($regexp);
+
+  if (empty($results)){
+    print("\n Error: No terms found when regexp was $regexp for parent term $parent_cvterm.");
+    return;
+  }
+  $chado_property->split_term_by_value_regexp();
+
+}
