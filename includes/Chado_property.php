@@ -375,12 +375,16 @@ class Chado_property {
   }
 
   public function split_term_by_value_regexp() {
-
+    
     $properties = $this->properties;
     $child_term = $this->child_term_id;
     $split_plan = $this->split_summary;
 
     foreach ($properties as $table => $props) {
+
+      $total = count($props);
+
+      print("\n Splitting " . $total . " properties for " . $table . "\n");
 
       foreach ($props as $prop) {
 
@@ -393,8 +397,10 @@ class Chado_property {
 
         $base_table = str_replace("prop", "", $table);
 
+        $base_key = $base_table . "_id";
 
-        $record_id = $prop->$key;
+        $record_id = $prop->$base_key;
+
 
         $record = ['table' => $base_table, 'id' => $record_id];
 
@@ -418,6 +424,8 @@ class Chado_property {
         ];
 
         $options = ['update_if_present' => TRUE];
+
+        print("Updating parent property...\n");
 
         chado_insert_property($record, $chado_property, $options);
       }
