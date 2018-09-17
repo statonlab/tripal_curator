@@ -277,6 +277,7 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   /**
+   * @group fail
    */
   public function test_split_term_by_value_regexp() {
 
@@ -312,6 +313,25 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->assertNotEmpty($children);
 
     //TODO: test that parent is correct too.
+
+
+    $parent_gone = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp', ['biomaterialprop_id'])
+      ->condition('type_id', $cvterm->cvterm_id)
+      ->condition('value', 'four hours, 100 degrees')
+      ->execute()->fetchField();
+
+    $this->assertFalse($parent_gone);
+
+    $parent = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp', ['biomaterialprop_id'])
+      ->condition('type_id', $cvterm->cvterm_id)
+      ->condition('value', 'six days')
+      ->execute()->fetchObject();
+
+    $this->assertNotFalse($parent);
+
+
 
   }
 

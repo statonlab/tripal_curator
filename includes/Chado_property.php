@@ -375,7 +375,7 @@ class Chado_property {
   }
 
   public function split_term_by_value_regexp() {
-    
+
     $properties = $this->properties;
     $child_term = $this->child_term_id;
     $split_plan = $this->split_summary;
@@ -415,7 +415,6 @@ class Chado_property {
 
         chado_insert_property($record, $chado_property, $options);
 
-
         //$record stays the same
 
         $chado_property = [
@@ -424,10 +423,9 @@ class Chado_property {
         ];
 
         $options = ['update_if_present' => TRUE];
+        //  $new = chado_insert_property($record, $chado_property, $options);
 
-        print("Updating parent property...\n");
-
-        chado_insert_property($record, $chado_property, $options);
+       $new =  chado_update_property($record, $chado_property);
       }
     }
   }
