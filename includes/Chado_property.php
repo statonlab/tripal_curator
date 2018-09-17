@@ -3,6 +3,8 @@
 namespace tripal_curator;
 
 
+use PHPUnit\Runner\Exception;
+
 class Chado_property {
 
 
@@ -47,6 +49,25 @@ class Chado_property {
    */
   private $property_fields_to_include = [];
 
+
+  /**
+   * A summary of the proposed regexp split property.  Of the form
+   * [ $table => [ $value => [
+   *  "parent" => new parent value (child excised)
+   *  "child" => new child value (match of Regexp)
+   *  ] ] ]
+   *
+   * @var array
+   */
+  private $split_summary = [];
+
+
+  /**
+   * If splitting a property, this is the "destintation" term for the child
+   *
+   * @var string
+   */
+  private $child_term_id = NULL;
 
   /**
    * Initialize the class with a type_id.
@@ -104,7 +125,9 @@ class Chado_property {
 
 
   /**
-   * Becaus we aren't specifying a type_id (might have multiple types) it's easier to have a separate less DRY command for searching for cvalues.
+   * Becaus we aren't specifying a type_id (might have multiple types) it's
+   * easier to have a separate less DRY command for searching for cvalues.
+   *
    * @param $tables
    */
 
@@ -124,9 +147,10 @@ class Chado_property {
       $query = db_select($t, $table);
       $query->fields($table, $table_fields);
 
-      if (!$type_id){
+      if (!$type_id) {
         $query->isNull('cvalue_id');
-      } else {
+      }
+      else {
         $query->condition('cvalue_id', $type_id);
       }
 
@@ -146,7 +170,7 @@ class Chado_property {
 
   }
 
-    /**
+  /**
    * Method for populating or re-populating the class.
    *
    * @param $tables
@@ -167,6 +191,14 @@ class Chado_property {
 
       $table_fields = $fields;
       array_push($table_fields, $table . '_id');
+
+      //also get root FK column ie thing_id from thingprop
+
+      $base_id = str_replace("prop", "", $table);
+      $base_id = $base_id . "_id";
+
+      $table_fields[] = $base_id;
+
       $t = tripal_curator_chadofy($table);
       $query = db_select($t, $table);
       $query->fields($table, $table_fields);
@@ -278,5 +310,129 @@ class Chado_property {
   public function get_type_id() {
     return $this->type_id;
   }
+
+  /**
+   *
+   *
+   * @param $regexp | A  regular expression string.  It should uniquely match
+   *   the property one wants to split off.
+   *
+   * @return array | Returns an array of the properties that match the regexp.
+   */
+  public function match_records_against_regexp($regexp) {
+    $matched_records = [];
+
+    $match_summary = [];
+
+    $tables = $this->properties;
+
+    foreach ($tables as $table => $props) {
+      $table_matches = [];
+
+      foreach ($props as $prop) {
+
+        $matches = [];
+        $match = preg_match($regexp, $prop->value, $matches);
+
+        if ($match) {
+
+          unset($matches[0]);
+          if (count($matches) > 1) {
+
+            print("warning: Too many matches for property: of type " . $prop->type_id . "with value " . $prop->value . "\n");
+            //TODO: proper exception handling.
+            continue;
+          }
+          $child_match = $matches[1];
+
+          $table_matches[] = $prop;
+
+          $new_parent = preg_replace($regexp, '', $prop->value);
+          $id = $prop->type_id;
+
+          $match_summary[$table][$prop->value] = [
+            'parent' => $new_parent,
+            'child' => $child_match,
+          ];
+
+        }
+      }
+      if (!empty($table_matches)) {
+        $matched_records[$table] = $table_matches;
+      }
+    }
+    $this->split_summary = $match_summary;
+    $this->properties = $matched_records;
+
+    return $matched_records;
+  }
+
+
+  public function set_child_term($cvterm_id) {
+
+    $this->child_term_id = $cvterm_id;
+
+  }
+
+  public function split_term_by_value_regexp() {
+
+    $properties = $this->properties;
+    $child_term = $this->child_term_id;
+    $split_plan = $this->split_summary;
+
+    foreach ($properties as $table => $props) {
+
+      $total = count($props);
+
+      print("\n Splitting " . $total . " properties for " . $table . "\n");
+
+      foreach ($props as $prop) {
+
+        $lookup = $split_plan[$table][$prop->value];
+        $new_child = $lookup['child'];
+        $new_parent = $lookup['parent'];
+        $parent_type = $prop->type_id;
+
+        $key = $table . "_id";
+
+        $base_table = str_replace("prop", "", $table);
+
+        $base_key = $base_table . "_id";
+
+        $record_id = $prop->$base_key;
+
+
+        $record = ['table' => $base_table, 'id' => $record_id];
+
+        $chado_property = [
+          'type_id' => $child_term,
+          'value' => $new_child,
+        ];
+
+        //not sure if we should update if present or not.  Don't want to accidentally overwrite existing properties.  Maybe it should check if the term is already set and, if so, set the rank to two?
+
+        $options = [];
+
+        chado_insert_property($record, $chado_property, $options);
+
+        //$record stays the same
+
+        $chado_property = [
+          'type_id' => $parent_type,
+          'value' => $new_parent,
+        ];
+
+        $options = ['update_if_present' => TRUE];
+        //  $new = chado_insert_property($record, $chado_property, $options);
+
+       $new =  chado_update_property($record, $chado_property);
+      }
+    }
+  }
+
+  public function get_split_summary() {
+    return $this->split_summary;
+  }
+
 
 }

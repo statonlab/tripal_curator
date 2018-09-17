@@ -167,11 +167,15 @@ function tripal_curator_cv_cvterms_form($form, &$form_state, $cv_id) {
       $values = $term['values'];
       $type = $term['type_id'];
 
-      $name = l($name, 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
+     // $name = l($name, 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
 
+      $edit_link  = l('Edit', 'admin/tripal/extension/tripal_curator/edit_type_id/' . $type);
+      $split_link = l ('Split', 'admin/tripal/extension/tripal_curator/split/' . $type);
+
+      $name_row = $name . "(" . $edit_link . " / " . $split_link . ")";
       $value_list = implode(', ', $values);
 
-      $row = [$name, $value_list];
+      $row = [$name_row, $value_list];
       $rows[] = $row;
 
     }
