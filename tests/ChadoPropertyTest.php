@@ -336,7 +336,7 @@ class ChadoPropertyTest extends TripalTestCase {
    * Create two properties: one that will be split and produce another of the same type.
    * We want the splitter to error.
    *
-   * @group wip
+   * @ticket 34
    */
   public function test_split_doesnt_update_if_present(){
 
@@ -392,6 +392,7 @@ class ChadoPropertyTest extends TripalTestCase {
       ->fields('bp', ['value', 'type_id'])
       ->condition('biomaterial_id', $biomaterial->biomaterial_id)
       ->execute()->fetchAll();
+
     $this->assertEquals(2, count($children));
 
     $children = db_select('chado.biomaterialprop', 'bp')
@@ -412,6 +413,40 @@ class ChadoPropertyTest extends TripalTestCase {
     $this->assertEquals('part B', $children->value);
 
 
+
+    $property = new Chado_property();
+    $tables = $property->set_cvtermprop_search($cvtermA->cvterm_id);
+    $props = $property->get_props();
+
+    $qualifiers = $property->match_records_against_regexp('/@part(.*)/');
+
+
+
+    $summary = $property->get_split_summary();
+    $this->assertNotEmpty($summary);
+
+    $property->set_child_term($cvtermB->cvterm_id);
+
+    $property->split_term_by_value_regexp();
+
+
+    $children = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp', ['value', 'type_id'])
+      ->condition('biomaterial_id', $biomaterial->biomaterial_id)
+      ->execute()->fetchAll();
+
+    var_dump($children);
+    $this->assertEquals(2, count($children));
+
+
+    $children = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp', ['value'])
+      ->condition('type_id', $cvtermB->cvterm_id)
+      ->execute()->fetchObject();
+
+    $this->assertNotNull($children);
+
+    $this->assertEquals('B', $children->value);
 
   }
 
