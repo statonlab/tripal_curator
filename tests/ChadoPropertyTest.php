@@ -208,7 +208,6 @@ class ChadoPropertyTest extends TripalTestCase {
   }
 
   /**
-   * @group wip
    */
   public function testRegexpMatcher() {
 
@@ -250,7 +249,6 @@ class ChadoPropertyTest extends TripalTestCase {
   /**
    * Ensure invalid Regexp at least runs
    *
-   * @group wip
    */
   public function testRegexpMatcher_invalid_regexp() {
 
@@ -277,7 +275,6 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   /**
-   * @group fail
    */
   public function test_split_term_by_value_regexp() {
 
@@ -334,6 +331,90 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
   }
+
+  /**
+   * Create two properties: one that will be split and produce another of the same type.
+   * We want the splitter to error.
+   *
+   * @group wip
+   */
+  public function test_split_doesnt_update_if_present(){
+
+
+    $cv = factory('chado.cv')->create();
+
+    $cvtermA = factory('chado.cvterm')
+      ->create(['cv_id' => $cv->cv_id]);
+
+    $cvtermB = factory('chado.cvterm')
+      ->create(['cv_id' => $cv->cv_id]);
+
+    $biomaterial = factory('chado.biomaterial')->create();
+
+
+    $values = [
+      'part A@part B',
+      'part B',
+    ];
+
+    $propA = factory('chado.biomaterialprop')
+      ->create([
+        'type_id' => $cvtermA->cvterm_id,
+        'biomaterial_id' => $biomaterial->biomaterial_id,
+        'value' => $values[0],
+      ]);
+
+    $propB = factory('chado.biomaterialprop')
+      ->create([
+        'type_id' => $cvtermB->cvterm_id,
+        'biomaterial_id' => $biomaterial->biomaterial_id,
+        'value' => $values[1],
+      ]);
+
+    //Splitting PropA on @ with the match going to cvtermB should fail.
+
+
+    $property = new Chado_property();
+    $tables = $property->set_cvtermprop_search($cvtermA->cvterm_id);
+    $props = $property->get_props();
+
+    $qualifiers = $property->match_records_against_regexp('/@(.*)/');
+
+    $summary = $property->get_split_summary();
+    $this->assertNotEmpty($summary);
+
+    $property->set_child_term($cvtermB->cvterm_id);
+
+    $property->split_term_by_value_regexp();
+
+
+    $children = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp', ['value', 'type_id'])
+      ->condition('biomaterial_id', $biomaterial->biomaterial_id)
+      ->execute()->fetchAll();
+    $this->assertEquals(2, count($children));
+
+    $children = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp', ['value'])
+      ->condition('type_id', $cvtermA->cvterm_id)
+      ->execute()->fetchObject();
+
+    $this->assertNotNull($children);
+
+    $this->assertEquals('part A@part B', $children->value);
+
+
+    $children = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp', ['value'])
+      ->condition('type_id', $cvtermB->cvterm_id)
+      ->execute()->fetchObject();
+
+    $this->assertEquals('part B', $children->value);
+
+
+
+  }
+
 
 
 }
