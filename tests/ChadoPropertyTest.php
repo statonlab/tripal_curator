@@ -10,49 +10,6 @@ class ChadoPropertyTest extends TripalTestCase {
 
   use DBTransaction;
 
-  protected function setUp() {
-    parent::setUp();
-    //
-    //    $cvterm = tripal_insert_cvterm(
-    //      [
-    //        'name' => 'Curator Test',
-    //        'definition' => 'A test CVterm.  Should be deleted in test.',
-    //        'cv_name' => 'tripal',
-    //        'is_relationship' => 0,
-    //        'db_name' => 'tripal',
-    //      ]
-    //    );
-    //
-    //    $this->cvterm_test = $cvterm;
-    //
-    //    $property = new Chado_property();
-    //
-    //    $query = [
-    //      'name' => 'comment',
-    //      'cv_id' => ['name' => 'cvterm_property_type'],
-    //    ];
-    //
-    //    $cvprop_term = tripal_get_cvterm($query);
-    //
-    //    $this->cvterm_existing = $cvprop_term;
-    //    $property->set_cvtermprop_search($cvprop_term->cvterm_id);
-    //    $this->property = $property;
-    //
-    //    //create a biomaterial that will be not have a cvalue
-    //
-    //    $biomaterial = factory('chado.biomaterial')->create();
-    //
-    //    $query = db_insert('chado.biomaterialprop')
-    //      ->fields([
-    //        'biomaterial_id' => $biomaterial->biomaterial_id,
-    //        "type_id" => $cvterm->cvterm_id,
-    //        "value" => "No cvalue!",
-    //        'cvalue_id' => NULL,
-    //      ]);
-    //    $result = $query->execute();
-  }
-
-
   public function test_initialize_property() {
     $property = new Chado_property();
 
@@ -334,7 +291,7 @@ class ChadoPropertyTest extends TripalTestCase {
 
   /**
    * Create two properties: one that will be split and produce another of the same type.
-   * We want the splitter to error.
+   * split should pass, BUT it shouldnt overwrite the existing property terms.
    *
    * @ticket 34
    */
@@ -345,7 +302,6 @@ class ChadoPropertyTest extends TripalTestCase {
 
     $cvtermA = factory('chado.cvterm')
       ->create(['cv_id' => $cv->cv_id]);
-
     $cvtermB = factory('chado.cvterm')
       ->create(['cv_id' => $cv->cv_id]);
 
@@ -353,7 +309,7 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
     $values = [
-      'part A@part B',
+      'part A@part C',
       'part B',
     ];
 
@@ -374,6 +330,11 @@ class ChadoPropertyTest extends TripalTestCase {
     //Splitting PropA on @ with the match going to cvtermB should fail.
 
 
+    $children = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp', ['value', 'type_id', 'rank'])
+      ->condition('biomaterial_id', $biomaterial->biomaterial_id)
+      ->execute()->fetchAll();
+
     $property = new Chado_property();
     $tables = $property->set_cvtermprop_search($cvtermA->cvterm_id);
     $props = $property->get_props();
@@ -389,11 +350,11 @@ class ChadoPropertyTest extends TripalTestCase {
 
 
     $children = db_select('chado.biomaterialprop', 'bp')
-      ->fields('bp', ['value', 'type_id'])
+      ->fields('bp', ['value', 'type_id', 'rank'])
       ->condition('biomaterial_id', $biomaterial->biomaterial_id)
       ->execute()->fetchAll();
-
-    $this->assertEquals(2, count($children));
+    //We have a different value so we should now have 3 terms
+    $this->assertEquals(3, count($children));
 
     $children = db_select('chado.biomaterialprop', 'bp')
       ->fields('bp', ['value'])
@@ -402,52 +363,25 @@ class ChadoPropertyTest extends TripalTestCase {
 
     $this->assertNotNull($children);
 
-    $this->assertEquals('part A@part B', $children->value);
+    $this->assertEquals('part A', $children->value);
 
 
     $children = db_select('chado.biomaterialprop', 'bp')
-      ->fields('bp', ['value'])
+      ->fields('bp')
       ->condition('type_id', $cvtermB->cvterm_id)
+      ->condition('rank', '1')
+      ->execute()->fetchObject();
+
+    $this->assertEquals('part C', $children->value);
+
+
+    $children = db_select('chado.biomaterialprop', 'bp')
+      ->fields('bp')
+      ->condition('type_id', $cvtermB->cvterm_id)
+      ->condition('rank', '0')
       ->execute()->fetchObject();
 
     $this->assertEquals('part B', $children->value);
-
-
-
-    $property = new Chado_property();
-    $tables = $property->set_cvtermprop_search($cvtermA->cvterm_id);
-    $props = $property->get_props();
-
-    $qualifiers = $property->match_records_against_regexp('/@part(.*)/');
-
-
-
-    $summary = $property->get_split_summary();
-    $this->assertNotEmpty($summary);
-
-    $property->set_child_term($cvtermB->cvterm_id);
-
-    $property->split_term_by_value_regexp();
-
-
-    $children = db_select('chado.biomaterialprop', 'bp')
-      ->fields('bp', ['value', 'type_id'])
-      ->condition('biomaterial_id', $biomaterial->biomaterial_id)
-      ->execute()->fetchAll();
-
-    var_dump($children);
-    $this->assertEquals(2, count($children));
-
-
-    $children = db_select('chado.biomaterialprop', 'bp')
-      ->fields('bp', ['value'])
-      ->condition('type_id', $cvtermB->cvterm_id)
-      ->execute()->fetchObject();
-
-    $this->assertNotNull($children);
-
-    $this->assertEquals('B', $children->value);
-
   }
 
 

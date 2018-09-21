@@ -409,8 +409,6 @@ class Chado_property {
           'value' => $new_child,
         ];
 
-        //not sure if we should update if present or not.  Don't want to accidentally overwrite existing properties.  Maybe it should check if the term is already set and, if so, set the rank to two?
-
         $options = ['update_if_present' => FALSE];
         $inserted = chado_insert_property($record, $chado_property, $options);
 
