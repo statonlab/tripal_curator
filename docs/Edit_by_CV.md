@@ -25,7 +25,7 @@ Pick a term used we want to change. You will see all values used for that proper
  
 We need a new cvterm for temperature. For our site, we'll look them up in the plant trait ontology.  In general, I suggest the [EBI Ontology Lookup Service](https://www.ebi.ac.uk/ols/index) for finding terms.
 
-![biomaterial cv usage](/docs/img/edit_by_cv/ look_up_pto_temp_term.png)
+![biomaterial cv usage](/docs/img/edit_by_cv/look_up_pto_temp_term.png)
  
 Once you've picked your term, ensure it exists in your site and select it as the destination term for this property.
  
